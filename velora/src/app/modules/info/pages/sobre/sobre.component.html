@@ -1,0 +1,46 @@
+<section class="about-section">
+  <div class="about-container">
+    <div class="about-hero">
+      <a routerLink="/" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        VELORA
+      </a>
+      <h1 class="about-title">{{ 'about.title' | translate }}</h1>
+      <p class="about-desc">{{ 'about.description' | translate }}</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <div class="about-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h2>{{ 'about.missao' | translate }}</h2>
+        <p>{{ 'about.missao_desc' | translate }}</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h2>{{ 'about.historia' | translate }}</h2>
+        <p>{{ 'about.historia_desc' | translate }}</p>
+      </div>
+
+      <div class="about-card">
+        <div class="about-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>{{ 'about.valores' | translate }}</h2>
+        <ul class="about-values">
+          <li>{{ 'about.qualidade' | translate }}</li>
+          <li>{{ 'about.curadoria' | translate }}</li>
+          <li>{{ 'about.confianca' | translate }}</li>
+        </ul>
+      </div>
+
+      <div class="about-card about-card-full">
+        <p class="about-footer-text">{{ 'about.equipa' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</section>

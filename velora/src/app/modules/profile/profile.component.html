@@ -1,0 +1,97 @@
+<div class="profile-page">
+  <div class="profile-container">
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div>
+        <h1>{{ getUserField('nome') }}</h1>
+        <p class="profile-email">{{ getUserField('email') }}</p>
+      </div>
+      @if (saved()) {
+        <span class="saved-badge">Guardado!</span>
+      }
+    </div>
+
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Dados Pessoais</h2>
+        @if (!editing()) {
+          <button class="btn-edit" (click)="startEditing()">Editar</button>
+        }
+      </div>
+
+      @if (editing()) {
+        <div class="profile-form">
+          <div class="form-group">
+            <label>Nome completo</label>
+            <input type="text" [value]="editNome()" (input)="editNome.set($any($event.target).value)" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [value]="getUserField('email')" disabled />
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="tel" [value]="editTelefone()" (input)="editTelefone.set($any($event.target).value)" placeholder="+244 XXX XXX XXX" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Morada</label>
+              <input type="text" [value]="editMorada()" (input)="editMorada.set($any($event.target).value)" placeholder="Sua morada" />
+            </div>
+            <div class="form-group">
+              <label>Cidade</label>
+              <input type="text" [value]="editCidade()" (input)="editCidade.set($any($event.target).value)" placeholder="Sua cidade" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" (click)="saveProfile()">Guardar alterações</button>
+            <button class="btn-cancel" (click)="cancelEditing()">Cancelar</button>
+          </div>
+        </div>
+      } @else {
+        <div class="profile-info">
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span>{{ getUserField('email') }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Telefone</span>
+            <span>{{ getUserField('telefone') || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Morada</span>
+            <span>{{ getUserField('morada') || '—' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Cidade</span>
+            <span>{{ getUserField('cidade') || '—' }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="profile-section">
+      <div class="section-header">
+        <h2>Pedidos Recentes</h2>
+        <a routerLink="/pedidos" class="see-all">Ver todos</a>
+      </div>
+
+      @if (recentOrders().length === 0) {
+        <p class="empty-orders">Nenhum pedido encontrado.</p>
+      } @else {
+        <div class="orders-list">
+          @for (order of recentOrders(); track order.id) {
+            <div class="order-item">
+              <div class="order-id">#{{ order.id }}</div>
+              <div class="order-date">{{ order.data || order.created_at | date:'dd/MM/yyyy' }}</div>
+              <div class="order-total">{{ getOrderTotal(order) }}</div>
+              <span class="order-status {{ getStatusClass(order.status) }}">{{ order.status }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

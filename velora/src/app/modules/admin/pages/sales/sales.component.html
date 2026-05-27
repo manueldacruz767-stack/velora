@@ -1,0 +1,82 @@
+<div class="sales-page">
+  <h1 class="page-title">Vendas</h1>
+
+  <div class="sales-summary">
+    <div class="summary-card">
+      <span class="summary-value">{{ totalOrders() }}</span>
+      <span class="summary-label">Total de Pedidos</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-value">{{ totalRevenue().toLocaleString() }} Kz</span>
+      <span class="summary-label">Receita Total</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-value">{{ deliveredCount() }}</span>
+      <span class="summary-label">Entregues</span>
+    </div>
+    <div class="summary-card">
+      <span class="summary-value">{{ processingCount() }}</span>
+      <span class="summary-label">Em Processamento</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        type="text"
+        placeholder="Pesquisar pedidos..."
+        [value]="searchTerm()"
+        (input)="onSearch($any($event.target).value)"
+      />
+    </div>
+
+    <div class="status-filters">
+      <button class="status-filter" [class.active]="statusFilter() === 'todos'" (click)="onStatusFilter('todos')">Todos</button>
+      <button class="status-filter pendente" [class.active]="statusFilter() === 'pendente'" (click)="onStatusFilter('pendente')">Pendente</button>
+      <button class="status-filter confirmado" [class.active]="statusFilter() === 'confirmado'" (click)="onStatusFilter('confirmado')">Confirmado</button>
+      <button class="status-filter entregue" [class.active]="statusFilter() === 'entregue'" (click)="onStatusFilter('entregue')">Entregue</button>
+      <button class="status-filter cancelado" [class.active]="statusFilter() === 'cancelado'" (click)="onStatusFilter('cancelado')">Cancelado</button>
+    </div>
+  </div>
+
+  @if (filteredOrders.length === 0) {
+    <div class="empty-state">
+      <p>Nenhum pedido encontrado.</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="sales-table">
+        <thead>
+          <tr>
+            <th>Pedido</th>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Itens</th>
+            <th>Total</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of filteredOrders; track order.id) {
+            <tr>
+              <td class="order-id">#{{ order.id }}</td>
+              <td>{{ formatDate(order.data || order.created_at) }}</td>
+              <td>{{ order.userId || order.user_id || '—' }}</td>
+              <td>{{ (order.items || []).length }} itens</td>
+              <td class="order-total">{{ (order.totalKz || order.total * 850).toLocaleString() }} Kz</td>
+              <td>
+                <select class="status-select" [value]="order.status" (change)="updateOrderStatus(order, $any($event.target).value)">
+                  <option value="pendente">Pendente</option>
+                  <option value="confirmado">Confirmado</option>
+                  <option value="entregue">Entregue</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

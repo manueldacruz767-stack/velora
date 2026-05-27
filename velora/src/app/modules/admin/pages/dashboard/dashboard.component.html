@@ -1,0 +1,385 @@
+<div class="dashboard">
+  <h1 class="page-title">Dashboard {{ role() === 'seller' ? 'Vendedor' : 'Admin' }}</h1>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon products-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalProducts() }}</span>
+        <span class="stat-label">Total Produtos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon orders-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalOrders() }}</span>
+        <span class="stat-label">Total Pedidos</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon users-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalUsers() }}</span>
+        <span class="stat-label">Total Utilizadores</span>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon revenue-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalRevenue().toLocaleString() }} Kz</span>
+        <span class="stat-label">Receita Total</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3>Pedidos por Dia (7 dias)</h3>
+      <div class="bar-chart">
+        @for (day of ordersPerDay; track day.day) {
+          <div class="bar-item">
+            <div class="bar-value">{{ day.count }}</div>
+            <div class="bar" [style.height]="(day.count / maxOrdersPerDay) * 120 + 'px'" [style.background]="day.count > 0 ? 'var(--accent)' : 'var(--shadow)'"></div>
+            <div class="bar-label">{{ day.day }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>Receita por Categoria</h3>
+      <div class="bar-chart">
+        @for (cat of revenueByCategory; track cat.category) {
+          <div class="bar-item">
+            <div class="bar-value">{{ (cat.revenue * 850).toLocaleString().slice(0, 6) }}Kz</div>
+            <div class="bar" [style.height]="(cat.revenue / maxRevenueByCategory) * 120 + 'px'" [style.background]="'linear-gradient(180deg, #CBA135, #E4C76B)'"></div>
+            <div class="bar-label">{{ cat.category }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="tab-btn" [class.active]="activeTab() === 'products'" (click)="switchTab('products')">Produtos</button>
+    <button class="tab-btn" [class.active]="activeTab() === 'orders'" (click)="switchTab('orders')">Pedidos</button>
+    <button class="tab-btn" [class.active]="activeTab() === 'users'" (click)="switchTab('users')">Utilizadores</button>
+  </div>
+
+  @if (activeTab() === 'products') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h2>Gestão de Produtos</h2>
+        <button class="btn-add" (click)="showAddForm.set(!showAddForm())">
+          {{ showAddForm() ? 'Cancelar' : '+ Novo Produto' }}
+        </button>
+      </div>
+
+      @if (showAddForm()) {
+        <div class="add-product-form">
+          <h3>Adicionar Produto</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome para pesquisa automática</label>
+              <input type="text" [(ngModel)]="newProductAuto.title" placeholder="Ex: iPhone 15" />
+            </div>
+            <div class="form-group">
+              <label>URL da Imagem</label>
+              <div class="input-with-btn">
+                <input type="text" [(ngModel)]="newProductAuto.imageUrl" placeholder="https://..." />
+                <button class="btn-auto-fetch" (click)="autoFetchProduct()" [disabled]="autoFetching()" title="Preencher automaticamente">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                  {{ autoFetching() ? 'A buscar...' : 'Auto' }}
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="auto-hint">Cole o URL da imagem e clique "Auto" para preencher os dados automaticamente pela API.</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome</label>
+              <input type="text" [(ngModel)]="newProduct.title" placeholder="Nome do produto" />
+            </div>
+            <div class="form-group">
+              <label>Preço (USD)</label>
+              <input type="number" [(ngModel)]="newProduct.price" placeholder="0.00" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label>Descrição</label>
+              <textarea [(ngModel)]="newProduct.description" placeholder="Descrição do produto" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoria</label>
+              <select [(ngModel)]="newProduct.category">
+                <option value="smartphones">Smartphones</option>
+                <option value="laptops">Computadores</option>
+                <option value="fragrances">Perfumes</option>
+                <option value="home-decoration">Decoração</option>
+                <option value="mens-shirts">Moda Masculina</option>
+                <option value="womens-dresses">Moda Feminina</option>
+                <option value="beauty">Beleza</option>
+                <option value="skincare">Cuidado de Pele</option>
+                <option value="furniture">Móveis</option>
+                <option value="groceries">Alimentação</option>
+                <option value="sunglasses">Óculos</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <input type="number" [(ngModel)]="newProduct.stock" placeholder="10" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>URL da Imagem</label>
+              <input type="text" [(ngModel)]="newProduct.thumbnail" placeholder="https://..." />
+            </div>
+          </div>
+          <button class="btn-save-product" (click)="addProduct()" [disabled]="addingProduct()">
+            {{ addingProduct() ? 'A adicionar...' : 'Adicionar Produto' }}
+          </button>
+        </div>
+      }
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Categoria</th>
+              <th>Preço</th>
+              <th>Stock</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of products(); track p.id) {
+              <tr>
+                @if (p.id === editingProductId()) {
+                  <td class="product-cell">
+                    <img [src]="editDataImage()" class="product-thumb" loading="lazy" />
+                    <input type="text" [value]="editDataTitle()" (input)="updateEditTitle($event)" class="edit-input" />
+                  </td>
+                  <td>
+                    <select [value]="editDataCategory()" (change)="updateEditCategory($event)" class="edit-select">
+                      <option value="smartphones">Smartphones</option>
+                      <option value="laptops">Computadores</option>
+                      <option value="fragrances">Perfumes</option>
+                      <option value="home-decoration">Decoração</option>
+                      <option value="mens-shirts">Moda Masculina</option>
+                      <option value="womens-dresses">Moda Feminina</option>
+                    </select>
+                  </td>
+                  <td><input type="number" [value]="editDataPrice()" (change)="updateEditPrice($event)" class="edit-input small" /></td>
+                  <td><input type="number" [value]="editDataStock()" (change)="updateEditStock($event)" class="edit-input small" /></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn-icon save" (click)="saveEditProduct(p)" title="Guardar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      </button>
+                      <button class="btn-icon cancel" (click)="cancelEditProduct()" title="Cancelar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                } @else {
+                  <td class="product-cell">
+                    <img [src]="p.thumbnail" [alt]="p.title" class="product-thumb" loading="lazy" />
+                    <div class="product-meta">
+                      <strong>{{ p.title }}</strong>
+                      @if (p.brand) { <span class="brand">{{ p.brand }}</span> }
+                    </div>
+                  </td>
+                  <td><span class="category-tag">{{ getCategoryLabel(p.category) }}</span></td>
+                  <td class="price-cell">${{ p.price.toFixed(2) }}</td>
+                  <td><span class="stock-badge" [class.stock-low]="(p.stock ?? 0) < 10" [class.stock-out]="(p.stock ?? 0) <= 0" [class.stock-ok]="(p.stock ?? 0) >= 10">{{ p.stock || 0 }} un.</span></td>
+                  <td>
+                    <div class="action-btns">
+                      <button class="btn-icon edit" (click)="startEditProduct(p)" title="Editar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="btn-icon delete" (click)="deleteProduct(p)" title="Eliminar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (activeTab() === 'orders') {
+    <div class="tab-content">
+      <h2>Gestão de Pedidos</h2>
+      @if (orders().length === 0) {
+        <p class="empty-state">Nenhum pedido encontrado.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Pedido</th>
+                <th>Data</th>
+                <th>Itens</th>
+                <th>Total</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of orders(); track order.id) {
+                <tr>
+                  <td class="order-id-cell">#{{ order.id }}</td>
+                  <td>{{ order.created_at | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ (order.items || []).length }} itens</td>
+                  <td class="price-cell">{{ ($any(order).totalKz || order.total * 850).toLocaleString() }} Kz</td>
+                  <td>
+                    <select class="status-select" [value]="order.status" (change)="updateOrderStatus(order, $any($event.target).value)">
+                      <option value="pendente">Pendente</option>
+                      <option value="confirmado">Confirmado</option>
+                      <option value="entregue">Entregue</option>
+                      <option value="cancelado">Cancelado</option>
+                    </select>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  @if (activeTab() === 'users') {
+    <div class="tab-content">
+      <div class="tab-header">
+        <h2>Gestão de Utilizadores</h2>
+        <button class="btn-add" (click)="showAddUserForm.set(!showAddUserForm())">
+          {{ showAddUserForm() ? 'Cancelar' : '+ Novo Utilizador' }}
+        </button>
+      </div>
+
+      @if (showAddUserForm()) {
+        <div class="add-product-form">
+          <h3>Adicionar Utilizador</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome</label>
+              <input type="text" [(ngModel)]="newUser.nome" placeholder="Nome completo" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="newUser.email" placeholder="email@exemplo.com" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Senha</label>
+              <input type="password" [(ngModel)]="newUser.senha" placeholder="********" />
+            </div>
+            <div class="form-group">
+              <label>Tipo</label>
+              <select [(ngModel)]="newUser.tipo">
+                <option value="cliente">Cliente</option>
+                <option value="seller">Vendedor</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-save-product" (click)="addUser()" [disabled]="addingUser() || !newUser.nome || !newUser.email || !newUser.senha">
+            {{ addingUser() ? 'A adicionar...' : 'Adicionar Utilizador' }}
+          </button>
+        </div>
+      }
+
+      @if (users().length === 0) {
+        <p class="empty-state">Nenhum utilizador encontrado.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Utilizador</th>
+                <th>Email</th>
+                <th>Tipo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user.id) {
+                <tr>
+                  @if (user.id === editingUserId()) {
+                    <td class="user-cell">
+                      <div class="user-avatar-small">{{ getUserInitial(user) }}</div>
+                      <input type="text" #editNome [value]="user.nome" class="edit-input" />
+                    </td>
+                    <td><input type="email" #editEmail [value]="user.email" class="edit-input" /></td>
+                    <td>
+                      <select #editTipo [value]="user.tipo" class="edit-select">
+                        <option value="cliente">Cliente</option>
+                        <option value="seller">Vendedor</option>
+                        <option value="admin">Administrador</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="action-btns">
+                        <button class="btn-icon save" (click)="saveEditUser(user, editNome.value, editEmail.value, editTipo.value)" title="Guardar">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        </button>
+                        <button class="btn-icon cancel" (click)="cancelEditUser()" title="Cancelar">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  } @else {
+                    <td class="user-cell">
+                      <div class="user-avatar-small">{{ getUserInitial(user) }}</div>
+                      <strong>{{ user.nome }}</strong>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <span class="tipo-badge"
+                        [class.admin]="user.tipo === 'admin'"
+                        [class.seller]="user.tipo === 'seller' || user.tipo === 'vendedor'"
+                        [class.cliente]="user.tipo === 'cliente' || user.tipo === 'buyer'">
+                        {{ user.tipo === 'admin' ? 'Administrador' : (user.tipo === 'seller' || user.tipo === 'vendedor' ? 'Vendedor' : 'Cliente') }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="action-btns">
+                        <button class="btn-icon edit" (click)="startEditUser(user)" title="Editar">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="btn-icon delete" (click)="deleteUser(user)" title="Eliminar">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

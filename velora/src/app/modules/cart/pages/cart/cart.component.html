@@ -1,0 +1,87 @@
+<section class="cart-section">
+  <div class="cart-container">
+    <h1 class="cart-title">{{ 'cart.titulo' | translate }}</h1>
+
+    @if (items().length === 0) {
+      <div class="cart-empty">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        </div>
+        <h2>{{ 'cart.vazio' | translate }}</h2>
+        <p>{{ 'cart.empty_desc' | translate }}</p>
+        <a routerLink="/" class="btn-explorar">{{ 'cart.explorar' | translate }}</a>
+      </div>
+    } @else {
+      <div class="cart-layout">
+        <div class="cart-items">
+          <div class="cart-header">
+            <span class="col-product">{{ 'cart.produto' | translate }}</span>
+            <span class="col-price">{{ 'cart.preco' | translate }}</span>
+            <span class="col-qty">{{ 'cart.quantidade' | translate }}</span>
+            <span class="col-subtotal">{{ 'cart.subtotal' | translate }}</span>
+            <span class="col-remove"></span>
+          </div>
+
+          @for (item of items(); track item.product.id) {
+            <div class="cart-item" [class.updating]="updatingId() === item.product.id">
+              <div class="col-product">
+                <div class="item-info">
+                  <h3>{{ item.product.title }}</h3>
+                  <span class="item-category">{{ item.product.category }}</span>
+                </div>
+              </div>
+
+              <div class="col-price">
+                <span class="price-kz">{{ formatKz(item.product.price) }}</span>
+                <span class="price-usd">{{ exchangeService.formatarUSD(item.product.price) }}</span>
+              </div>
+
+              <div class="col-qty">
+                <div class="qty-controls">
+                  <button class="qty-btn" (click)="updateQuantidade(item.product.id, item.quantidade - 1)" [disabled]="item.quantidade <= 1">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                  <span class="qty-value">{{ item.quantidade }}</span>
+                  <button class="qty-btn" (click)="updateQuantidade(item.product.id, item.quantidade + 1)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-subtotal">
+                <span class="price-kz">{{ formatKz(item.product.price * item.quantidade) }}</span>
+              </div>
+
+              <div class="col-remove">
+                <button class="btn-remove" (click)="removeItem(item.product.id)" [attr.aria-label]="'cart.remover' | translate">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="cart-summary">
+          <h3 class="summary-title">{{ 'cart.resumo' | translate }}</h3>
+          <div class="summary-row">
+            <span>{{ 'cart.subtotal' | translate }} ({{ cartService.totalItems() }} {{ 'cart.itens' | translate }})</span>
+            <span class="summary-kz">{{ totalKz() }}</span>
+          </div>
+          <div class="summary-row muted">
+            <span>{{ 'cart.em_usd' | translate }}</span>
+            <span>{{ exchangeService.formatarUSD(cartService.totalPrice()) }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row total">
+            <span>{{ 'cart.total' | translate }}</span>
+            <span class="summary-kz">{{ totalKz() }}</span>
+          </div>
+          <button class="btn-checkout" (click)="finalizar()">
+            {{ 'cart.finalizar' | translate }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</section>

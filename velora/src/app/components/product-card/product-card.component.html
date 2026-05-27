@@ -1,0 +1,38 @@
+<div class="product-card" [class.added]="added()" [class.compact]="compact()">
+  <a [routerLink]="['/produto', product().id]" class="product-image-wrap">
+    <img [src]="product().images?.[0] || product().thumbnail || product().image" [alt]="product().title" class="product-image" loading="lazy"/>
+    <div class="product-overlay">
+      <span>{{ 'product.ver_detalhes' | translate }}</span>
+    </div>
+    @if (product().discountPercentage && product().discountPercentage! > 0) {
+      <span class="product-discount">-{{ product().discountPercentage!.toFixed(0) }}%</span>
+    }
+  </a>
+  <div class="product-info">
+    <span class="product-category">{{ getCategoryLabel(product().category) }}</span>
+    <h3 class="product-title">{{ product().title }}</h3>
+    <div class="product-rating">
+      @if (product().rating) {
+        @for (star of [1,2,3,4,5]; track star) {
+          <svg width="12" height="12" viewBox="0 0 24 24" [class.filled]="star <= (product().rating?.rate ?? 0)" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        }
+        <span class="rating-count">({{ product().rating?.count ?? 0 }})</span>
+      }
+    </div>
+    <div class="product-footer">
+      <div class="product-prices">
+        <span class="price-usd">${{ product().price }}</span>
+        <span class="price-kz">{{ formatKz(product().price) }}</span>
+      </div>
+      <button class="btn-add" (click)="addToCart()">
+        @if (added()) {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        } @else {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        }
+      </button>
+    </div>
+  </div>
+</div>

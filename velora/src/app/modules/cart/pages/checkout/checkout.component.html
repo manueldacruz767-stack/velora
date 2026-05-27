@@ -1,0 +1,251 @@
+<section class="checkout-section">
+  <div class="checkout-container">
+    <div class="checkout-header">
+      <a routerLink="/carrinho" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        {{ 'checkout.voltar_carrinho' | translate }}
+      </a>
+      <h1>{{ 'checkout.titulo' | translate }}</h1>
+    </div>
+
+    @if (success()) {
+      <div class="checkout-success">
+        <div class="success-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><polyline points="16 8 10 16 7 13"/></svg>
+        </div>
+        <h2>{{ 'checkout.sucesso_titulo' | translate }}</h2>
+        <p>{{ 'checkout.sucesso_desc' | translate }}</p>
+        @if (paymentMethod() === 'proxypay') {
+          <p class="success-ref">{{ 'checkout.sucesso_referencia' | translate }} <strong>{{ reference() }}</strong></p>
+        }
+        <p class="success-redirect">{{ 'checkout.sucesso_redirect' | translate }}</p>
+      </div>
+    } @else {
+      <div class="checkout-grid">
+        <div class="checkout-left">
+          <div class="checkout-card">
+            <h2 class="card-title">{{ 'checkout.entrega' | translate }}</h2>
+            <form [formGroup]="shippingForm" class="checkout-form">
+              <div class="form-group">
+                <label for="endereco">{{ 'checkout.endereco' | translate }}</label>
+                <input id="endereco" type="text" formControlName="endereco" [placeholder]="'checkout.endereco_placeholder' | translate" />
+                @if (shippingForm.get('endereco')?.invalid && shippingForm.get('endereco')?.touched) {
+                  <span class="field-error">{{ 'checkout.campo_obrigatorio' | translate }}</span>
+                }
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="cidade">{{ 'checkout.cidade' | translate }}</label>
+                  <input id="cidade" type="text" formControlName="cidade" [placeholder]="'checkout.cidade_placeholder' | translate" />
+                  @if (shippingForm.get('cidade')?.invalid && shippingForm.get('cidade')?.touched) {
+                    <span class="field-error">{{ 'checkout.campo_obrigatorio' | translate }}</span>
+                  }
+                </div>
+                <div class="form-group">
+                  <label for="telefone">{{ 'checkout.telefone' | translate }}</label>
+                  <input id="telefone" type="tel" formControlName="telefone" [placeholder]="'checkout.telefone_placeholder' | translate" />
+                  @if (shippingForm.get('telefone')?.invalid && shippingForm.get('telefone')?.touched) {
+                    <span class="field-error">{{ 'checkout.invalido' | translate }}</span>
+                  }
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <div class="checkout-card payment-card">
+            <div class="payment-tabs">
+              <button class="payment-tab" [class.active]="paymentMethod() === 'proxypay'" (click)="selectMethod('proxypay')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8"/><path d="M10 12v4"/><path d="M14 12v4"/></svg>
+                <span>{{ 'checkout.multicaixa_express' | translate }}</span>
+                <span class="tab-badge">{{ 'checkout.ate_6x' | translate }}</span>
+              </button>
+              <button class="payment-tab" [class.active]="paymentMethod() === 'paypal'" (click)="selectMethod('paypal')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 11l2-9h7a5 5 0 015 5 5 5 0 01-5 5H7z"/><path d="M7 11l-1 9h4l1-9H7z"/></svg>
+                <span>{{ 'checkout.paypal_cartao' | translate }}</span>
+              </button>
+            </div>
+
+            @if (paymentMethod() === 'proxypay') {
+              @if (paymentStep() === 'reference') {
+                <div class="proxypay-reference-card">
+                  <div class="ref-card-glow"></div>
+                  <div class="ref-card-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8"/><path d="M10 12v4"/><path d="M14 12v4"/></svg>
+                    <span class="ref-card-brand">Multicaixa Express</span>
+                    <span class="ref-card-badge">ProxyPay Sandbox</span>
+                  </div>
+
+                  <div class="ref-card-divider"></div>
+
+                  <div class="ref-card-body">
+                    <div class="ref-row">
+                      <span class="ref-label">{{ 'checkout.referencia' | translate }}</span>
+                      <span class="ref-value ref-value-large">{{ proxyPayRef()?.referencia }}</span>
+                    </div>
+                    <div class="ref-row">
+                      <span class="ref-label">Entidade</span>
+                      <span class="ref-value">{{ proxyPayRef()?.entidade }}</span>
+                    </div>
+                    <div class="ref-row">
+                      <span class="ref-label">{{ 'checkout.total' | translate }} (Kz)</span>
+                      <span class="ref-value ref-value-accent">{{ exchangeService.formatarKz(proxyPayRef()?.valor || 0) }}</span>
+                    </div>
+                    <div class="ref-row">
+                      <span class="ref-label">{{ 'checkout.expiracao' | translate }}</span>
+                      <span class="ref-value">{{ formatarData(proxyPayRef()?.expiracao || '') }}</span>
+                    </div>
+                  </div>
+
+                  <div class="ref-card-divider"></div>
+
+                  <div class="ref-card-footer">
+                    <p class="ref-card-msg">{{ 'checkout.instrucoes_multicaixa' | translate }}</p>
+                    <button class="btn-atm-simulate" (click)="simularPagamentoATM()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8"/><path d="M10 12v4"/><path d="M14 12v4"/></svg>
+                      [ Simular Pagamento no ATM ]
+                    </button>
+                  </div>
+                </div>
+              } @else if (paymentStep() === 'processing') {
+                <div class="payment-processing">
+                  <div class="processing-spinner"></div>
+                  <h3>{{ 'checkout.processando' | translate }}</h3>
+                  <p>{{ 'checkout.processando_desc' | translate }}</p>
+                  <div class="processing-bar"><div class="processing-bar-fill"></div></div>
+                </div>
+              } @else {
+                <div class="multicaixa-display">
+                  <div class="multicaixa-header">
+                    <div class="multicaixa-logo">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M8 12h8"/><path d="M10 12v4"/><path d="M14 12v4"/></svg>
+                      <span>{{ 'checkout.multicaixa_express' | translate }}</span>
+                    </div>
+                    <span class="multicaixa-badge">ProxyPay</span>
+                  </div>
+
+                  <div class="reference-box">
+                    <span class="reference-label">{{ 'checkout.referencia' | translate }}</span>
+                    <span class="reference-number">{{ reference() }}</span>
+                  </div>
+
+                  <div class="multicaixa-amount">
+                    <span class="amount-label">{{ 'checkout.total' | translate }}</span>
+                    <span class="amount-value">{{ totalComFreteKz() }}</span>
+                  </div>
+
+                  <div class="multicaixa-instructions" [innerHTML]="'checkout.instrucoes_multicaixa' | translate">
+                  </div>
+
+                  <button class="btn-gold" (click)="onSubmit()" [disabled]="loading() || shippingForm.invalid || items().length === 0">
+                    @if (loading()) { <span class="spinner"></span> }
+                    {{ 'checkout.pagar' | translate: { total: totalComFreteKz() } }}
+                  </button>
+                </div>
+              }
+            }
+
+            @if (paymentMethod() === 'paypal') {
+              <div class="paypal-display">
+                <div class="paypal-header">
+                  <div class="paypal-logo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 11l2-9h7a5 5 0 015 5 5 5 0 01-5 5H7z"/><path d="M7 11l-1 9h4l1-9H7z"/></svg>
+                    <span>PayPal</span>
+                  </div>
+                  <span class="paypal-badge">{{ 'checkout.internacional' | translate }}</span>
+                </div>
+
+                <div class="paypal-info">
+                  <div class="paypal-amount">
+                    <span class="amount-label">{{ 'checkout.usd' | translate }}</span>
+                    <span class="amount-value-usd">{{ exchangeService.formatarUSD(totalComFreteUSD()) }}</span>
+                  </div>
+                  <div class="paypal-amount">
+                    <span class="amount-label">{{ 'checkout.kz' | translate }}</span>
+                    <span class="amount-value">{{ totalComFreteKz() }}</span>
+                  </div>
+                </div>
+
+                <div class="paypal-instructions" [innerHTML]="'checkout.instrucoes_paypal' | translate">
+                </div>
+
+                <div class="paypal-logos">
+                  <span>{{ 'checkout.aceita' | translate }}</span>
+                  <div class="card-icons">
+                    <svg width="32" height="20" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="3" fill="#1A1F71"/><text x="5" y="14" fill="white" font-size="7" font-weight="bold" font-family="Arial">VISA</text></svg>
+                    <svg width="32" height="20" viewBox="0 0 32 20" fill="none"><rect width="32" height="20" rx="3" fill="#EB001B"/><text x="3" y="14" fill="white" font-size="6" font-weight="bold" font-family="Arial">MC</text></svg>
+                    <span class="amex-text">AMEX</span>
+                  </div>
+                </div>
+
+                <button class="btn-paypal" (click)="onSubmit()" [disabled]="loading() || shippingForm.invalid || items().length === 0">
+                  @if (loading()) { <span class="spinner"></span> }
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 11l2-9h7a5 5 0 015 5 5 5 0 01-5 5H7z"/><path d="M7 11l-1 9h4l1-9H7z"/></svg>
+                  {{ 'checkout.pagar_paypal' | translate }}
+                </button>
+              </div>
+            }
+          </div>
+
+          <div class="benefits-strip">
+            <div class="benefit-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <span>{{ 'checkout.frete_fixo' | translate }}</span>
+              <span class="benefit-sub">{{ 'checkout.frete_sub' | translate }}</span>
+            </div>
+            <div class="benefit-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>{{ 'checkout.trocas' | translate }}</span>
+              <span class="benefit-sub">{{ 'checkout.trocas_sub' | translate }}</span>
+            </div>
+            <div class="benefit-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <span>{{ 'checkout.juros' | translate }}</span>
+              <span class="benefit-sub">{{ 'checkout.juros_sub' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="checkout-right">
+          <div class="summary-card">
+            <h3 class="summary-title">{{ 'checkout.resumo' | translate }}</h3>
+            <div class="summary-items">
+              @for (item of items(); track item.product.id) {
+                <div class="summary-item">
+                  <img [src]="item.product.images?.[0] || item.product.thumbnail" [alt]="item.product.title" class="summary-item-img" loading="lazy" />
+                  <div class="summary-item-info">
+                    <h4>{{ item.product.title }}</h4>
+                    <span class="summary-item-qty">{{ item.quantidade }}x</span>
+                  </div>
+                  <span class="summary-item-price">{{ formatKz(item.product.price * item.quantidade) }}</span>
+                </div>
+              }
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-line">
+              <span>{{ 'checkout.subtotal' | translate }}</span>
+              <span>{{ totalKz() }}</span>
+            </div>
+            <div class="summary-line">
+              <span>{{ 'checkout.frete' | translate }}</span>
+              <span>{{ freightKz() }}</span>
+            </div>
+            <div class="summary-divider gold"></div>
+            <div class="summary-line total">
+              <span>{{ 'checkout.total' | translate }}</span>
+              <span>{{ totalComFreteKz() }}</span>
+            </div>
+            <div class="summary-line muted">
+              <span>{{ 'checkout.usd' | translate }}</span>
+              <span>{{ exchangeService.formatarUSD(totalComFreteUSD()) }}</span>
+            </div>
+          </div>
+
+          <div class="footer-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>{{ 'checkout.processado_por' | translate }} <strong>ProxyPay</strong></span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</section>

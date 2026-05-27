@@ -1,0 +1,112 @@
+<section class="register-section">
+  <div class="register-container">
+    <a routerLink="/" class="register-logo">VELORA</a>
+
+    <div class="register-card">
+      <h1 class="register-title">{{ 'auth.register_title' | translate }}</h1>
+      <p class="register-desc">{{ 'auth.register_desc' | translate }}</p>
+
+      @if (error()) {
+        <div class="register-alert alert-error">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          <span>{{ error() }}</span>
+        </div>
+      }
+
+      @if (success()) {
+        <div class="register-alert alert-success">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>{{ 'auth.criada_sucesso' | translate }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
+        <div class="rf-row">
+          <div class="rf-group">
+            <label for="nome">{{ 'auth.nome' | translate }}</label>
+            <input id="nome" type="text" formControlName="nome" [placeholder]="'auth.nome_placeholder' | translate" [class.has-error]="form.get('nome')?.invalid && form.get('nome')?.touched" />
+            @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
+              <span class="rf-error">{{ 'auth.nome_min' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="rf-row">
+          <div class="rf-group">
+            <label for="email">{{ 'auth.email' | translate }}</label>
+            <input id="email" type="email" formControlName="email" placeholder="seu@email.com" [class.has-error]="form.get('email')?.invalid && form.get('email')?.touched" (input)="form.get('email')?.markAsPending()" />
+            @if (form.get('email')?.value && form.get('email')?.valid) {
+              <span class="rf-role-badge" [class.badge-admin]="detectedRole().role === 'admin'" [class.badge-seller]="detectedRole().role === 'seller'" [class.badge-buyer]="detectedRole().role === 'buyer'">
+                {{ detectedRole().label }}
+              </span>
+            }
+            @if (form.get('email')?.invalid && form.get('email')?.touched) {
+              <span class="rf-error">{{ 'auth.email_invalido' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="rf-row rf-split">
+          <div class="rf-group">
+            <label for="senha">{{ 'auth.senha' | translate }}</label>
+            <div class="rf-password">
+              <input id="senha" [type]="showSenha() ? 'text' : 'password'" formControlName="senha" [placeholder]="'auth.senha_placeholder' | translate" [class.has-error]="form.get('senha')?.invalid && form.get('senha')?.touched" />
+              <button type="button" class="rf-pw-toggle" (click)="toggleSenha()" tabindex="-1" [attr.aria-label]="showSenha() ? ('auth.esconder_senha' | translate) : ('auth.mostrar_senha' | translate)">
+                @if (showSenha()) {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                } @else {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
+            @if (form.get('senha')?.value && form.get('senha')?.valid) {
+              <div class="rf-strength">
+                <div class="rf-strength-bar">
+                  <div class="rf-strength-fill" [style.width.%]="(passwordStrength() / 6) * 100" [class]="'fill-' + passwordLabel().class"></div>
+                </div>
+                <span class="rf-strength-label" [class]="passwordLabel().class">{{ passwordLabel().text | translate }}</span>
+              </div>
+            }
+            @if (form.get('senha')?.invalid && form.get('senha')?.touched) {
+              <span class="rf-error">{{ 'auth.senha_min' | translate }}</span>
+            }
+          </div>
+          <div class="rf-group">
+            <label for="confirmSenha">{{ 'auth.confirmar_senha' | translate }}</label>
+            <div class="rf-password">
+              <input id="confirmSenha" [type]="showConfirmSenha() ? 'text' : 'password'" formControlName="confirmSenha" [placeholder]="'auth.confirmar_placeholder' | translate" [class.has-error]="(form.get('confirmSenha')?.invalid && form.get('confirmSenha')?.touched) || (form.hasError('naoCoincidem') && form.get('confirmSenha')?.touched)" />
+              <button type="button" class="rf-pw-toggle" (click)="toggleConfirmSenha()" tabindex="-1" [attr.aria-label]="showConfirmSenha() ? ('auth.esconder_senha' | translate) : ('auth.mostrar_senha' | translate)">
+                @if (showConfirmSenha()) {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                } @else {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
+            @if (form.hasError('naoCoincidem') && form.get('confirmSenha')?.touched) {
+              <span class="rf-error">{{ 'auth.senhas_nao_coincidem' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <label class="rf-terms">
+          <input type="checkbox" [checked]="aceiteTermos()" (change)="aceiteTermos.set(!aceiteTermos())" />
+          <span class="rf-checkmark"></span>
+          <span>{{ 'auth.aceito_termos' | translate }} <a routerLink="/politica" class="rf-terms-link">{{ 'auth.termos' | translate }}</a></span>
+        </label>
+
+        <button type="submit" class="rf-submit" [disabled]="form.invalid || loading() || success() || !aceiteTermos()">
+          @if (loading()) {
+            <span class="rf-spinner"></span>
+          }
+          {{ 'auth.criar' | translate }}
+        </button>
+      </form>
+
+      <p class="register-switch">
+        {{ 'auth.ja_tem_conta' | translate }}
+        <a routerLink="/login">{{ 'auth.entrar_link' | translate }}</a>
+      </p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,69 @@
+<section class="orders-section">
+  <div class="orders-container">
+    <div class="orders-header">
+      <h1 class="orders-title">{{ 'orders.titulo' | translate }}</h1>
+      @if (orders().length > 0) {
+        <div class="export-actions">
+          <button class="btn-export" (click)="exportPdf()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            {{ 'orders.export_pdf' | translate }}
+          </button>
+          <button class="btn-export" (click)="exportCsv()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            {{ 'orders.export_csv' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+
+    @if (loading()) {
+      <div class="skeleton-list">
+        @for (i of [1,2,3]; track i) {
+          <div class="skeleton-order">
+            <div class="skeleton-row"></div>
+            <div class="skeleton-row short"></div>
+          </div>
+        }
+      </div>
+    } @else if (orders().length === 0) {
+      <div class="orders-empty">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <h2>{{ 'orders.vazio' | translate }}</h2>
+        <p>Faça a sua primeira compra e comece a construir o seu histórico.</p>
+        <a routerLink="/" class="btn-explorar">{{ 'cart.explorar' | translate }}</a>
+      </div>
+    } @else {
+      <div class="orders-list">
+        @for (order of orders(); track order.id) {
+          <div class="order-card">
+            <div class="order-header">
+              <div>
+                <span class="order-id">Pedido #{{ order.id }}</span>
+                <span class="order-date">{{ formatDate(order.created_at) }}</span>
+              </div>
+              <span class="order-status {{ statusClass(order.status) }}">{{ statusLabel(order.status) }}</span>
+            </div>
+            <div class="order-body">
+              <div class="order-items">
+                @for (item of order.items || []; track item.id) {
+                  <div class="order-item">
+                    <span class="item-name">{{ item.product_nome }}</span>
+                    <span class="item-qty">x{{ item.quantidade }}</span>
+                    <span class="item-price">{{ formatKz(item.preco * item.quantidade) }}</span>
+                  </div>
+                }
+              </div>
+              <div class="order-total">
+                <span>{{ 'orders.total' | translate }}</span>
+                <span class="total-kz">{{ formatKz(order.total) }}</span>
+                <span class="total-usd">{{ exchangeService.formatarUSD(order.total) }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</section>

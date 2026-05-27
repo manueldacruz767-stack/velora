@@ -1,0 +1,17 @@
+@if (open()) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal-content" role="dialog" [attr.aria-modal]="true" [attr.aria-label]="title()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ title() }}</h3>
+        <button class="modal-close" (click)="closed.emit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ng-content />
+      </div>
+    </div>
+  </div>
+}

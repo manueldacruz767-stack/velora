@@ -1,0 +1,299 @@
+﻿<section class="hero">
+  <div class="hero-bg-pattern"></div>
+  <div class="hero-content">
+    <span class="hero-tag">VELORA</span>
+    <h1 class="hero-title">{{ 'hero.tag' | translate }}</h1>
+    <p class="hero-subtitle">{{ 'hero.desc' | translate }}</p>
+    <div class="hero-actions">
+      <a routerLink="/produtos" class="btn-primary">{{ 'hero.btn_primary' | translate }}</a>
+      <a routerLink="/colecao" class="btn-secondary">{{ 'hero.btn_secondary' | translate }}</a>
+    </div>
+  </div>
+  <div class="hero-visual" (mouseenter)="pauseCarousel()" (mouseleave)="resumeCarousel()">
+    <div class="hero-glow"></div>
+    @if (heroProducts().length > 0) {
+      <div class="hero-image-frame">
+        @for (product of heroProducts(); track product.id; let i = $index) {
+          <a [routerLink]="['/produto', product.id]" class="hero-slide" [class.active]="i === currentHeroIndex()">
+            <img
+              [src]="product.images?.[0] || product.thumbnail"
+              [alt]="product.title"
+              class="hero-product-img"
+              loading="lazy"
+            />
+            <div class="hero-slide-info">
+              <span class="hero-slide-name">{{ product.title }}</span>
+              <span class="hero-slide-price">{{ formatKz(product.price) }}</span>
+              <span class="hero-slide-btn">{{ 'product.ver_detalhes' | translate }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+    <div class="carousel-dots">
+      @for (product of heroProducts(); track product.id; let i = $index) {
+        <button
+          class="carousel-dot"
+          [class.active]="i === currentHeroIndex()"
+          (click)="goToSlide(i)"
+        ></button>
+      }
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <svg width="20" height="30" viewBox="0 0 20 30" fill="none">
+      <rect x="1.5" y="1.5" width="17" height="27" rx="8.5" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+      <circle cx="10" cy="10" r="2" fill="currentColor" class="scroll-dot"/>
+    </svg>
+  </div>
+</section>
+
+<section class="trust-strip">
+  <div class="trust-container">
+    <div class="trust-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4l-9-5.19M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>
+      <span>{{ 'trust.produtos' | translate }}</span>
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      <span>{{ 'trust.entrega' | translate }}</span>
+    </div>
+    <div class="trust-item">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      <span>{{ 'trust.suporte' | translate }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="categories-section" appFadeIn>
+  <div class="categories-container">
+    <h2 class="section-title">{{ 'section.categorias' | translate }}</h2>
+    <div class="categories-grid">
+      @for (cat of categoryData(); track cat.category; let i = $index) {
+        <a [routerLink]="['/produtos']" [queryParams]="{categoria: cat.category}" class="category-card" [class.featured]="i === 0" [style.backgroundImage]="'url(' + cat.image + ')'">
+          <div class="category-overlay"></div>
+          <div class="category-content">
+            <h3>{{ cat.label }}</h3>
+            <span class="category-count">{{ cat.count }} produtos</span>
+          </div>
+        </a>
+      }
+    </div>
+  </div>
+</section>
+
+<section class="products-section" appFadeIn>
+  <div class="products-container">
+    <div class="section-header">
+      <h2>{{ 'section.destaque' | translate }}</h2>
+      <a routerLink="/produtos" class="see-all">{{ 'section.ver_todos' | translate }}</a>
+    </div>
+
+    @if (loading()) {
+      <div class="skeleton-grid">
+        @for (item of [1,2,3,4,5,6,7,8]; track item) {
+          <div class="skeleton-card">
+            <div class="skeleton-image"></div>
+            <div class="skeleton-text"></div>
+            <div class="skeleton-text short"></div>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="products-grid">
+        @for (product of products(); track product.id) {
+          <app-product-card
+            [product]="product"
+            [taxa]="taxa()"
+            (addedToCart)="addToCart($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</section>
+
+@if (categoryCarousels().length > 0) {
+  <section class="category-carousels-section" appFadeIn>
+    <div class="carousels-container">
+      @for (carousel of categoryCarousels(); track carousel.category; let first = $first) {
+        <div class="category-carousel" [class.featured]="first">
+          <div class="carousel-header">
+            <h3>{{ getCategoryLabel(carousel.category) }}</h3>
+            <a [routerLink]="['/produtos']" [queryParams]="{categoria: carousel.category}" class="see-all">
+              {{ 'section.ver_todos' | translate }}
+            </a>
+          </div>
+          <div class="carousel-track-wrapper">
+            <button class="carousel-arrow prev" (click)="prevCategory(carousel.category)" aria-label="Anterior">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="carousel-track">
+              <div class="carousel-items" [style.transform]="'translateX(-' + ((carouselIndices[carousel.category] ?? 0) * 25) + '%)'">
+                @for (product of carousel.products; track product.id) {
+                  <app-product-card
+                    [product]="product"
+                    [taxa]="taxa()"
+                    [compact]="true"
+                    (addedToCart)="addToCart($event)"
+                  />
+                }
+              </div>
+            </div>
+            <button class="carousel-arrow next" (click)="nextCategory(carousel.category)" aria-label="Seguinte">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+}
+
+<section class="banner-premium" appFadeIn>
+  <div class="banner-content">
+    <div class="banner-accent-line"></div>
+    <h2>{{ 'banner.title' | translate }}</h2>
+    <div class="banner-accent-line"></div>
+    <a routerLink="/colecao" class="btn-banner">{{ 'banner.cta' | translate }}</a>
+  </div>
+</section>
+
+<section class="testimonials-section" appFadeIn>
+  <div class="testimonials-container">
+    <h2 class="section-title">{{ 'testimonials.title' | translate }}</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card" appFadeIn [delay]="100">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=1" alt="Ana Silva" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(5); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#CBA135" stroke="#CBA135" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.1' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>Ana Silva</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card" appFadeIn [delay]="200">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=3" alt="Carlos Mendes" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(5); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#CBA135" stroke="#CBA135" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.2' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>Carlos Mendes</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card" appFadeIn [delay]="300">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=5" alt="Maria Costa" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(5); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#CBA135" stroke="#CBA135" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.3' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>Maria Costa</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card" appFadeIn [delay]="400">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=8" alt="João Ferreira" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(4); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="hasStar(4, star) ? '#CBA135' : 'none'" [attr.stroke]="hasStar(4, star) ? '#CBA135' : '#64748B'" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.4' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>João Ferreira</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card" appFadeIn [delay]="500">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=9" alt="Sofia Martins" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(5); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#CBA135" stroke="#CBA135" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.5' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>Sofia Martins</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card" appFadeIn [delay]="600">
+        <div class="testimonial-avatar">
+          <img src="https://i.pravatar.cc/80?img=11" alt="Pedro Santos" loading="lazy" />
+        </div>
+        <div class="testimonial-content">
+          <div class="testimonial-stars">
+            @for (star of getRatingStars(5); track star) {
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#CBA135" stroke="#CBA135" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
+          <p>"{{ 'testimonials.6' | translate }}"</p>
+          <div class="testimonial-author">
+            <strong>Pedro Santos</strong>
+            <span class="testimonial-location">Luanda, Angola</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="why-velora" appFadeIn>
+  <div class="why-container">
+    <h2 class="why-title">{{ 'why.title' | translate }}</h2>
+    <div class="why-grid">
+      <div class="why-card" appFadeIn [delay]="100">
+        <div class="why-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <h3>{{ 'why.curadoria_title' | translate }}</h3>
+        <p>{{ 'why.curadoria_desc' | translate }}</p>
+      </div>
+      <div class="why-card" appFadeIn [delay]="200">
+        <div class="why-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <h3>{{ 'why.experiencia_title' | translate }}</h3>
+        <p>{{ 'why.experiencia_desc' | translate }}</p>
+      </div>
+      <div class="why-card" appFadeIn [delay]="300">
+        <div class="why-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>{{ 'why.confianca_title' | translate }}</h3>
+        <p>{{ 'why.confianca_desc' | translate }}</p>
+      </div>
+    </div>
+  </div>
+</section>

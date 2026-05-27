@@ -1,0 +1,118 @@
+<section class="products-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        @if (searchQuery()) {
+          {{ 'products_page.resultados' | translate }} "{{ searchQuery() }}"
+        } @else if (activeCategory() !== 'todas') {
+          {{ getCategoryLabel(activeCategory()) }}
+        } @else {
+          {{ 'products_page.todos' | translate }}
+        }
+      </h1>
+      <p>{{ filteredProducts().length }} {{ 'products_page.encontrados' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="page-toolbar">
+    <div class="search-bar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input
+        type="text"
+        [placeholder]="'nav.pesquisar' | translate"
+        [value]="searchQuery()"
+        (input)="onSearch($any($event.target).value)"
+      />
+      @if (searchQuery()) {
+        <button class="clear-search" (click)="onSearch('')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      }
+    </div>
+
+    <div class="toolbar-right">
+      <div class="category-filters">
+        <button
+          class="cat-filter"
+          [class.active]="activeCategory() === 'todas'"
+          (click)="filterByCategory('todas')"
+        >{{ 'products_page.todas' | translate }}</button>
+        @for (cat of categories(); track cat) {
+          <button
+            class="cat-filter"
+            [class.active]="activeCategory() === cat"
+            (click)="filterByCategory(cat)"
+          >{{ getCategoryLabel(cat) }}</button>
+        }
+      </div>
+
+      <select class="sort-select" [value]="sortBy()" (change)="changeSort($any($event.target).value)">
+        <option value="default">{{ 'products_page.ordenar' | translate }}</option>
+        <option value="price-asc">{{ 'products_page.preco_asc' | translate }}</option>
+        <option value="price-desc">{{ 'products_page.preco_desc' | translate }}</option>
+        <option value="name">{{ 'products_page.nome_az' | translate }}</option>
+        <option value="rating">{{ 'products_page.melhor_avaliados' | translate }}</option>
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="skeleton-grid">
+      @for (item of [1,2,3,4,5,6,7,8]; track item) {
+        <div class="skeleton-card">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-text short"></div>
+        </div>
+      }
+    </div>
+  } @else if (filteredProducts().length === 0) {
+    <div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <h3>{{ 'products_page.nenhum' | translate }}</h3>
+      @if (searchQuery()) {
+        <p class="empty-query">{{ 'products_page.nenhum_resultado' | translate }} "<strong>{{ searchQuery() }}</strong>".</p>
+        <p class="empty-suggestion">{{ 'products_page.sugestao_categorias' | translate }}</p>
+      } @else {
+        <p>{{ 'products_page.ajustar' | translate }}</p>
+      }
+      <a routerLink="/produtos" class="btn-primary">{{ 'products_page.ver_todos' | translate }}</a>
+    </div>
+  } @else {
+    <div class="products-grid">
+      @for (product of paginatedProducts; track product.id) {
+        <app-product-card
+          [product]="product"
+          [taxa]="taxa()"
+          (addedToCart)="addToCart($event)"
+        />
+      }
+    </div>
+
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        @for (page of [].constructor(totalPages); track $index) {
+          <button
+            class="page-btn"
+            [class.active]="currentPage() === $index + 1"
+            (click)="goToPage($index + 1)"
+          >{{ $index + 1 }}</button>
+        }
+        <button
+          class="page-btn"
+          [disabled]="currentPage() === totalPages"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    }
+  }
+</section>
