@@ -286,7 +286,18 @@ export const en: Record<string, any> = {
     "novo_produto": "+ New Product",
     "gestao_pedidos": "Order Management",
     "gestao_utilizadores": "User Management",
-    "voltar_loja": "Back to store"
+    "voltar_loja": "Back to store",
+    "users": "Users",
+    "users_desc": "Moderate pending registrations on the platform",
+    "users_pendentes": "Pending",
+    "users_todos": "All",
+    "users_empty": "No pending users",
+    "users_empty_desc": "All registrations have been approved.",
+    "users_aprovado": "User approved successfully",
+    "users_rejeitado": "User rejected",
+    "users_confirmar_rejeitar": "Are you sure you want to reject this user?",
+    "users_aprovar": "Approve",
+    "users_rejeitar": "Reject"
   },
   "about": {
     "title": "Grand brands. One unique experience.",

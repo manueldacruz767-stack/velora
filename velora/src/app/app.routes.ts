@@ -24,7 +24,8 @@ export const routes: Routes = [
     children: [
       { path: '', loadComponent: () => import('./modules/admin/pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'produtos', loadComponent: () => import('./modules/admin/pages/products/products.component').then(m => m.AdminProductsComponent) },
-      { path: 'vendas', loadComponent: () => import('./modules/admin/pages/sales/sales.component').then(m => m.SalesComponent) }
+      { path: 'vendas', loadComponent: () => import('./modules/admin/pages/sales/sales.component').then(m => m.SalesComponent) },
+      { path: 'utilizadores', loadComponent: () => import('./modules/admin/pages/users/users.component').then(m => m.AdminUsersComponent) }
     ]
   },
   {

@@ -286,7 +286,18 @@ export const pt: Record<string, any> = {
     "novo_produto": "+ Novo Produto",
     "gestao_pedidos": "Gestão de Pedidos",
     "gestao_utilizadores": "Gestão de Utilizadores",
-    "voltar_loja": "Voltar à loja"
+    "voltar_loja": "Voltar à loja",
+    "users": "Utilizadores",
+    "users_desc": "Modere os registos pendentes na plataforma",
+    "users_pendentes": "Pendentes",
+    "users_todos": "Todos",
+    "users_empty": "Nenhum utilizador pendente",
+    "users_empty_desc": "Todos os registos foram aprovados.",
+    "users_aprovado": "Utilizador aprovado com sucesso",
+    "users_rejeitado": "Utilizador rejeitado",
+    "users_confirmar_rejeitar": "Tem a certeza que deseja rejeitar este utilizador?",
+    "users_aprovar": "Aprovar",
+    "users_rejeitar": "Rejeitar"
   },
   "about": {
     "title": "Grandes marcas. Uma única experiência.",
