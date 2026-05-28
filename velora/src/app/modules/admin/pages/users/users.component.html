@@ -1,0 +1,105 @@
+<div class="users-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Utilizadores</h1>
+      <p class="page-desc">Modere os registos pendentes na plataforma</p>
+    </div>
+  </div>
+
+  @if (feedback()) {
+    <div class="feedback" [class.feedback--success]="feedback()?.type === 'success'" [class.feedback--error]="feedback()?.type === 'error'">
+      <span>{{ feedback()?.message }}</span>
+      <button class="feedback-close" (click)="feedback.set(null)">×</button>
+    </div>
+  }
+
+  <div class="filters">
+    <button class="filter-btn" [class.active]="activeFilter() === 'pendentes'" (click)="activeFilter.set('pendentes'); loadPending()">
+      Pendentes
+      @if (pendingUsers().length > 0) {
+        <span class="badge">{{ pendingUsers().length }}</span>
+      }
+    </button>
+    <button class="filter-btn" [class.active]="activeFilter() === 'todos'" (click)="activeFilter.set('todos')">
+      Todos
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="table-skeleton">
+      @for (row of [1,2,3]; track row) {
+        <div class="skeleton-row">
+          <div class="skeleton-cell skeleton-avatar"></div>
+          <div class="skeleton-cell skeleton-text"></div>
+          <div class="skeleton-cell skeleton-text short"></div>
+          <div class="skeleton-cell skeleton-badge"></div>
+          <div class="skeleton-cell skeleton-actions"></div>
+        </div>
+      }
+    </div>
+  } @else if (pendingUsers().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>
+        </svg>
+      </div>
+      <h3>Nenhum utilizador pendente</h3>
+      <p>Todos os registos foram aprovados.</p>
+    </div>
+  } @else {
+    <div class="users-table-wrapper">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>{{ 'auth.nome' | translate }}</th>
+            <th>{{ 'auth.email' | translate }}</th>
+            <th>{{ 'auth.tipo_conta' | translate }}</th>
+            <th>Registo</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of pendingUsers(); track user.id) {
+            <tr class="user-row">
+              <td class="cell-avatar">
+                <div class="avatar">{{ getUserInitial(user) }}</div>
+              </td>
+              <td class="cell-name">
+                <span class="user-name">{{ user.nome }}</span>
+              </td>
+              <td class="cell-email">
+                <span class="user-email">{{ user.email }}</span>
+              </td>
+              <td>
+                <span class="tipo-badge" [class.tipo--admin]="user.tipo === 'admin'" [class.tipo--vendedor]="user.tipo === 'vendedor' || user.tipo === 'seller'">
+                  {{ getTipoLabel(user.tipo) }}
+                </span>
+              </td>
+              <td class="cell-date">
+                <span class="date-text">{{ formatDate(user.created_at) }}</span>
+              </td>
+              <td class="cell-actions">
+                <button class="action-btn approve-btn" [disabled]="actionLoading() === user.id" (click)="approveUser(user.id)">
+                  @if (actionLoading() === user.id) {
+                    <span class="btn-spinner"></span>
+                  } @else {
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  }
+                  Aprovar
+                </button>
+                <button class="action-btn reject-btn" [disabled]="actionLoading() === user.id" (click)="rejectUser(user.id)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Rejeitar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+</div>

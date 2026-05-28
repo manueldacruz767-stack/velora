@@ -117,6 +117,20 @@ try {
         $response = (new RastreioController($db))->show((int) $m[1]);
     }
 
+    // Admin routes
+    elseif ($route === '/admin/users' && $method === 'GET') {
+        $response = (new AdminController($db))->allUsers();
+    }
+    elseif ($route === '/admin/users/pendentes' && $method === 'GET') {
+        $response = (new AdminController($db))->pendingUsers();
+    }
+    elseif (preg_match('#^/admin/users/(\d+)/aprovar$#', $route, $m) && $method === 'POST') {
+        $response = (new AdminController($db))->approveUser((int) $m[1]);
+    }
+    elseif (preg_match('#^/admin/users/(\d+)/rejeitar$#', $route, $m) && $method === 'POST') {
+        $response = (new AdminController($db))->rejectUser((int) $m[1]);
+    }
+
     // Payment routes - ProxyPay
     elseif ($route === '/payment/reference' && $method === 'POST') {
         $response = (new PaymentController($db))->generateReference();
