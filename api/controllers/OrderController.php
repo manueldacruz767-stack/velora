@@ -39,4 +39,21 @@ class OrderController {
         $order = $this->orderService->getOrderDetail($id, $user['id']);
         return ['data' => $order];
     }
+
+    public function confirm(int $id): array {
+        $user = $this->auth->authenticate();
+        $orderModel = new Order($this->db);
+        $order = $orderModel->findById($id);
+
+        if (!$order) {
+            throw new RuntimeException('Pedido não encontrado', 404);
+        }
+
+        if ($order['user_id'] !== $user['id']) {
+            throw new RuntimeException('Acesso não autorizado', 403);
+        }
+
+        $result = $this->orderService->confirmPayment($id);
+        return ['message' => 'Pagamento confirmado com sucesso'] + $result;
+    }
 }

@@ -108,6 +108,14 @@ try {
     elseif (preg_match('#^/orders/(\d+)$#', $route, $m) && $method === 'GET') {
         $response = (new OrderController($db))->show((int) $m[1]);
     }
+    elseif (preg_match('#^/orders/(\d+)/confirm$#', $route, $m) && $method === 'POST') {
+        $response = (new OrderController($db))->confirm((int) $m[1]);
+    }
+
+    // Rastreio routes
+    elseif (preg_match('#^/rastreio/(\d+)$#', $route, $m) && $method === 'GET') {
+        $response = (new RastreioController($db))->show((int) $m[1]);
+    }
 
     // Payment routes - ProxyPay
     elseif ($route === '/payment/reference' && $method === 'POST') {

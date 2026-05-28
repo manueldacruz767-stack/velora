@@ -1,0 +1,97 @@
+<section class="success-section">
+  <div class="success-container">
+
+    @if (loading()) {
+      <div class="success-loading">
+        <div class="spinner"></div>
+        <p>{{ 'checkout.processando_desc' | translate }}</p>
+      </div>
+    } @else if (error() || !order()) {
+      <div class="success-error">
+        <div class="error-icon">!</div>
+        <h2>Pedido não encontrado</h2>
+        <p>Não foi possível carregar os detalhes do pedido.</p>
+        <a routerLink="/" class="btn-primary">{{ 'sucesso_page_voltar' | translate }}</a>
+      </div>
+    } @else {
+      <div class="success-header">
+        <div class="success-icon">
+          <svg viewBox="0 0 80 80" fill="none" class="check-animation">
+            <circle cx="40" cy="40" r="36" stroke="#CBA135" stroke-width="4" fill="none" class="check-circle" />
+            <path d="M24 40l10 10 22-22" stroke="#CBA135" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" class="check-mark" />
+          </svg>
+        </div>
+        <h1>{{ 'checkout.sucesso_page_titulo' | translate }}</h1>
+        <p class="success-desc">{{ 'checkout.sucesso_page_desc' | translate: { id: orderId() } }}</p>
+        <p class="success-email">{{ 'checkout.sucesso_page_email' | translate }}</p>
+        <p class="success-prep">{{ 'checkout.sucesso_page_preparacao' | translate }}</p>
+      </div>
+
+      <div class="success-order-info">
+        <div class="info-card">
+          <span class="info-label">{{ 'orders.status' | translate }}</span>
+          <span class="info-value status-badge" [class]="'status--' + order()?.status">
+            {{ statusLabel | translate }}
+          </span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">Pedido</span>
+          <span class="info-value">#{{ orderId() }}</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">{{ 'orders.data' | translate }}</span>
+          <span class="info-value">{{ order()?.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-card">
+          <span class="info-label">{{ 'orders.total' | translate }}</span>
+          <span class="info-value">${{ order()?.total?.toFixed(2) }}</span>
+        </div>
+      </div>
+
+      @if (rastreio().length > 0) {
+        <div class="rastreio-timeline">
+          <h3>{{ 'checkout.rastreio_titulo' | translate }}</h3>
+          <div class="timeline">
+            @for (event of rastreio(); track event.id) {
+              <div class="timeline-item" [class.active]="$last">
+                <div class="timeline-dot" [class.dot-active]="$last">
+                  <span>{{ $index + 1 }}</span>
+                </div>
+                <div class="timeline-content">
+                  <span class="timeline-status">{{ 'rastreio_' + event.status | translate }}</span>
+                  <p class="timeline-desc">{{ event.descricao }}</p>
+                  <span class="timeline-date">{{ event.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="success-items" *ngIf="order()?.items?.length">
+        <h3>{{ 'cart.resumo' | translate }}</h3>
+        <div class="items-list">
+          @for (item of order()?.items; track item.id) {
+            <div class="item-row">
+              <div class="item-info">
+                <span class="item-name">{{ item.product_nome }}</span>
+                <span class="item-qty">x{{ item.quantidade }}</span>
+              </div>
+              <span class="item-price">${{ (item.preco * item.quantidade).toFixed(2) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a [routerLink]="['/pedidos']" class="btn-primary">
+          {{ 'checkout.sucesso_page_acompanhar' | translate }}
+        </a>
+        <a routerLink="/" class="btn-secondary">
+          {{ 'checkout.sucesso_page_voltar' | translate }}
+        </a>
+      </div>
+    }
+
+  </div>
+</section>

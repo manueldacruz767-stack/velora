@@ -66,7 +66,10 @@ class PaymentController {
 
         $orderId = $this->createOrderFromCart($user['id']);
 
-        return ['success' => true, 'order_id' => $orderId];
+        $orderService = new OrderService($this->db);
+        $result = $orderService->confirmPayment($orderId);
+
+        return ['success' => true, 'order_id' => $orderId] + $result;
     }
 
     // ─── ProxyPay: Webhook ─────────────────────────────────────────
@@ -84,8 +87,8 @@ class PaymentController {
         $orderId = $event['custom_fields']['order_id'] ?? 0;
 
         if ($orderId) {
-            $stmt = $this->db->prepare('UPDATE orders SET status = ? WHERE id = ?');
-            $stmt->execute(['confirmado', $orderId]);
+            $orderService = new OrderService($this->db);
+            $orderService->confirmPayment((int) $orderId);
         }
 
         return ['status' => 'ok'];
@@ -166,10 +169,10 @@ class PaymentController {
 
         $orderId = $this->createOrderFromCart($user['id']);
 
-        $stmt = $this->db->prepare('UPDATE orders SET status = ? WHERE id = ?');
-        $stmt->execute(['confirmado', $orderId]);
+        $orderService = new OrderService($this->db);
+        $result = $orderService->confirmPayment($orderId);
 
-        return ['success' => true, 'order_id' => $orderId, 'paypal_status' => $status];
+        return ['success' => true, 'order_id' => $orderId, 'paypal_status' => $status] + $result;
     }
 
     // ─── Helpers ───────────────────────────────────────────────────
@@ -270,10 +273,7 @@ class PaymentController {
 
     private function createOrderFromCart(int $userId): int {
         $stmt = $this->db->prepare('
-            SELECT c.*, p.nome, p.preco
-            FROM cart c
-            JOIN products p ON c.product_id = p.id
-            WHERE c.user_id = ?
+            SELECT * FROM cart WHERE user_id = ?
         ');
         $stmt->execute([$userId]);
         $cartItems = $stmt->fetchAll();
@@ -283,43 +283,16 @@ class PaymentController {
         }
 
         $total = 0;
-        $items = [];
         foreach ($cartItems as $item) {
-            $subtotal = $item['preco'] * $item['quantidade'];
-            $total += $subtotal;
-            $items[] = $item;
+            $total += $item['preco'] * $item['quantidade'];
         }
 
-        $this->db->beginTransaction();
-        try {
-            $orderStmt = $this->db->prepare('
-                INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)
-            ');
-            $orderStmt->execute([$userId, $total, 'pendente']);
-            $orderId = (int) $this->db->lastInsertId();
+        $orderService = new OrderService($this->db);
+        $orderId = $orderService->placeOrder($userId, $cartItems, $total);
 
-            foreach ($items as $item) {
-                $itemStmt = $this->db->prepare('
-                    INSERT INTO order_items (order_id, product_id, product_nome, quantidade, preco)
-                    VALUES (?, ?, ?, ?, ?)
-                ');
-                $itemStmt->execute([
-                    $orderId,
-                    $item['product_id'],
-                    $item['nome'],
-                    $item['quantidade'],
-                    $item['preco']
-                ]);
-            }
+        $clearStmt = $this->db->prepare('DELETE FROM cart WHERE user_id = ?');
+        $clearStmt->execute([$userId]);
 
-            $clearStmt = $this->db->prepare('DELETE FROM cart WHERE user_id = ?');
-            $clearStmt->execute([$userId]);
-
-            $this->db->commit();
-            return $orderId;
-        } catch (Exception $e) {
-            $this->db->rollBack();
-            throw $e;
-        }
+        return $orderId;
     }
 }

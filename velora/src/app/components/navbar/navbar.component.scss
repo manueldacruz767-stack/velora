@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   background: transparent;
-  transition: background 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 0.4s cubic-bezier(0.25, 0.1, 0.25, 1), backdrop-filter 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.4s ease;
 }
 .navbar.scrolled {
   background: #ffffff;
@@ -77,12 +77,9 @@
   font-family: var(--font-display);
   font-size: 1.3rem;
   font-weight: 700;
-  color: #0F172A;
+  color: #CBA135;
   letter-spacing: 4px;
   transition: color 0.3s ease;
-}
-[data-theme="dark"] .brand-text {
-  color: #CBA135;
 }
 .brand-sub {
   font-family: var(--font-display);
@@ -101,7 +98,7 @@
   flex-shrink: 0;
 }
 .navbar-links a {
-  color: rgba(15, 23, 42, 0.7);
+  color: #0B0F19;
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 500;
@@ -111,7 +108,7 @@
   padding: 0.2rem 0;
 }
 [data-theme="dark"] .navbar-links a {
-  color: rgba(226, 232, 240, 0.65);
+  color: #E2E8F0;
 }
 .navbar-links a::after {
   content: '';

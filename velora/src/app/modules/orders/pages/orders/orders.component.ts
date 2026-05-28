@@ -21,7 +21,9 @@ export class OrdersComponent implements OnInit {
   taxa = signal(850);
   statusMap: Record<string, { label: string; class: string }> = {
     pendente: { label: 'Pendente', class: 'status-pendente' },
-    confirmado: { label: 'Confirmado', class: 'status-confirmado' },
+    pago: { label: 'Pago', class: 'status-pago' },
+    processando: { label: 'Processando', class: 'status-processando' },
+    enviado: { label: 'Enviado', class: 'status-enviado' },
     entregue: { label: 'Entregue', class: 'status-entregue' },
     cancelado: { label: 'Cancelado', class: 'status-cancelado' }
   };

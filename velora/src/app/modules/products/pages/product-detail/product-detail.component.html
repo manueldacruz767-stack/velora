@@ -31,10 +31,10 @@
           <div class="detail-gallery">
             <div class="main-image-wrap">
               <img
-                [src]="(p.images?.[selectedImage()] || p.thumbnail)"
+                [src]="p.thumbnail || p.images?.[0]"
                 [alt]="p.title"
                 class="main-image"
-                loading="lazy"
+                loading="eager"
               />
             </div>
             @if (p.images && p.images.length > 1) {
@@ -78,7 +78,7 @@
               <button class="btn-add-cart" (click)="addToCart()" [class.added]="addedToCart()">
                 @if (addedToCart()) {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>Adicionado</span>
+                  <span>{{ 'product.adicionado_ao_carrinho' | translate }}</span>
                 } @else {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                   <span>{{ 'product.adicionar' | translate }}</span>
@@ -89,11 +89,11 @@
             <div class="detail-meta">
               <div class="meta-item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <span>Pagamento seguro</span>
+                <span>{{ 'product.pagamento_seguro' | translate }}</span>
               </div>
               <div class="meta-item">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                <span>Entrega 24–72h</span>
+                <span>{{ 'product.entrega_rapida' | translate }}</span>
               </div>
             </div>
           </div>
@@ -101,12 +101,12 @@
 
         @if (relatedProducts().length > 0) {
           <section class="related-section">
-            <h2 class="related-title">Produtos Relacionados</h2>
+            <h2 class="related-title">{{ 'product.relacionados' | translate }}</h2>
             <div class="related-grid">
               @for (rp of relatedProducts(); track rp.id) {
                 <a [routerLink]="['/produto', rp.id]" class="related-card">
                   <div class="related-image-wrap">
-                    <img [src]="rp.images?.[0] || rp.thumbnail" [alt]="rp.title" class="related-image" loading="lazy"/>
+                    <img [src]="rp.thumbnail || rp.images?.[0]" [alt]="rp.title" class="related-image" loading="lazy"/>
                   </div>
                   <div class="related-info">
                     <h3>{{ rp.title }}</h3>
@@ -122,13 +122,13 @@
         }
 
         <section class="comments-section">
-          <h2 class="comments-title">Comentários & Avaliações ({{ comments().length }})</h2>
+          <h2 class="comments-title">{{ 'product.comentarios' | translate }} ({{ comments().length }})</h2>
 
           <div class="comment-form">
-            <h3>Deixe o seu comentário</h3>
+            <h3>{{ 'product.deixe_comentario' | translate }}</h3>
             @if (authService.isLoggedIn()) {
               <div class="star-rating-input">
-                <span class="rating-label">Avaliação:</span>
+                <span class="rating-label">{{ 'product.avaliacao' | translate }}</span>
                 <div class="stars">
                   @for (star of [1,2,3,4,5]; track star) {
                     <button class="star-btn" [class.active]="star <= newCommentRating()" (click)="setRating(star)" type="button">
@@ -141,20 +141,20 @@
               </div>
               <textarea
                 class="comment-textarea"
-                placeholder="Escreva o seu comentário sobre este produto..."
+                [placeholder]="'product.comentario_placeholder' | translate"
                 [(ngModel)]="newCommentText"
                 rows="3"
               ></textarea>
-              <button class="btn-submit-comment" (click)="submitComment()" [disabled]="!newCommentText().trim()">Enviar Comentário</button>
+              <button class="btn-submit-comment" (click)="submitComment()" [disabled]="!newCommentText().trim()">{{ 'product.enviar_comentario' | translate }}</button>
             } @else {
               <p class="login-to-comment">
-                <a routerLink="/login">Inicie sessão</a> para deixar um comentário.
+                <a routerLink="/login">{{ 'product.inicie_sessao' | translate }}</a> {{ 'product.para_comentar' | translate }}
               </p>
             }
           </div>
 
           @if (comments().length === 0) {
-            <p class="no-comments">Nenhum comentário ainda. Seja o primeiro a avaliar!</p>
+            <p class="no-comments">{{ 'product.sem_comentarios' | translate }}</p>
           } @else {
             <div class="comments-list">
               @for (comment of comments(); track comment.id) {
@@ -198,20 +198,20 @@
                   }
 
                   @if (canReply()) {
-                    <button class="btn-reply" (click)="replyToCommentId.set(comment.id)">Responder</button>
+                    <button class="btn-reply" (click)="replyToCommentId.set(comment.id)">{{ 'product.responder' | translate }}</button>
                   }
 
                   @if (replyToCommentId() === comment.id) {
                     <div class="reply-form">
                       <textarea
                         class="comment-textarea"
-                        placeholder="Escreva a sua resposta..."
+                        [placeholder]="'product.resposta_placeholder' | translate"
                         [(ngModel)]="replyText"
                         rows="2"
                       ></textarea>
                       <div class="reply-actions">
-                        <button class="btn-submit-comment small" (click)="submitReply(comment.id)" [disabled]="!replyText().trim()">Enviar</button>
-                        <button class="btn-cancel-reply" (click)="replyToCommentId.set(null); replyText.set('')">Cancelar</button>
+                        <button class="btn-submit-comment small" (click)="submitReply(comment.id)" [disabled]="!replyText().trim()">{{ 'product.enviar' | translate }}</button>
+                        <button class="btn-cancel-reply" (click)="replyToCommentId.set(null); replyText.set('')">{{ 'product.cancelar' | translate }}</button>
                       </div>
                     </div>
                   }

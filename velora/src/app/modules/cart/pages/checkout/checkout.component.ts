@@ -2,12 +2,13 @@ import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { CartService } from '../../../../services/cart.service';
-import { OrderService } from '../../../../services/order.service';
 import { ExchangeService } from '../../../../services/exchange.service';
 import { PaymentService } from '../../../../services/payment.service';
 import { ProxyPayService, ProxyPayMockResponse } from '../../../../services/proxypay.service';
 import { TranslatePipe } from '../../../../pipes/translate.pipe';
+import { environment } from '../../../../../environments/environment';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -38,9 +39,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   constructor(
     public cartService: CartService,
     public exchangeService: ExchangeService,
-    private orderService: OrderService,
     private paymentService: PaymentService,
     private proxyPayService: ProxyPayService,
+    private http: HttpClient,
     private fb: FormBuilder,
     private router: Router
   ) {
@@ -183,17 +184,33 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   private createOrderAndRedirect(): void {
-    const orderItems = this.items().map(item => ({
+    const items = this.items().map(item => ({
       product_id: item.product.id,
       product_nome: item.product.title,
+      preco: item.product.price,
       quantidade: item.quantidade,
-      preco: item.product.price
+      origem: item.product.vendedor_id ? 'local' : 'api',
+      imagem_url: item.product.image || item.product.thumbnail || null
     }));
     const total = this.cartService.totalPrice() + this.freight;
-    this.orderService.createOrder(orderItems, total).subscribe({
-      next: () => {
+
+    this.http.post<any>(`${environment.backendUrl}/orders`, { items, total }).subscribe({
+      next: (res) => {
+        const orderId = res.data.id;
+        this.http.post(`${environment.backendUrl}/orders/${orderId}/confirm`, {}).subscribe({
+          next: () => {
+            this.cartService.clearCart();
+            this.router.navigate(['/checkout/success', orderId]);
+          },
+          error: () => {
+            this.cartService.clearCart();
+            this.router.navigate(['/checkout/success', orderId]);
+          }
+        });
+      },
+      error: () => {
         this.cartService.clearCart();
-        setTimeout(() => this.router.navigate(['/pedidos']), 2000);
+        this.router.navigate(['/pedidos']);
       }
     });
   }

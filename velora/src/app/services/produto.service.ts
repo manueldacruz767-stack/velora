@@ -30,8 +30,37 @@ export class ProdutoService {
   private loaded = false;
   private nextId = 1000;
   private baseUrl = 'https://dummyjson.com/products';
+  private readonly CACHE_KEY = 'velora_produtos_cache';
+  private readonly CACHE_EXPIRY = 10 * 60 * 1000;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.loadFromCache();
+  }
+
+  private loadFromCache(): void {
+    try {
+      const raw = localStorage.getItem(this.CACHE_KEY);
+      if (!raw) return;
+      const { data, timestamp } = JSON.parse(raw);
+      if (Date.now() - timestamp > this.CACHE_EXPIRY) {
+        localStorage.removeItem(this.CACHE_KEY);
+        return;
+      }
+      this.produtosSubject.next(data);
+      this.loaded = true;
+    } catch {
+      localStorage.removeItem(this.CACHE_KEY);
+    }
+  }
+
+  private saveToCache(products: Product[]): void {
+    try {
+      localStorage.setItem(this.CACHE_KEY, JSON.stringify({
+        data: products,
+        timestamp: Date.now()
+      }));
+    } catch {}
+  }
 
   getProdutos(): Observable<Product[]> {
     this.carregarProdutos();
@@ -49,10 +78,19 @@ export class ProdutoService {
   carregarProdutos(): void {
     if (this.loaded) return;
     this.loaded = true;
-    this.http.get<DummyResponse>(`${this.baseUrl}?limit=100&skip=0`).subscribe({
+    this.http.get<DummyResponse>(`${this.baseUrl}?limit=20&skip=0`).subscribe({
       next: (res) => {
         const products = res.products.map(p => this.mapProduct(p));
         this.produtosSubject.next(products);
+        this.saveToCache(products);
+        this.http.get<DummyResponse>(`${this.baseUrl}?limit=30&skip=20`).subscribe({
+          next: (res2) => {
+            const more = res2.products.map(p => this.mapProduct(p));
+            const all = [...products, ...more];
+            this.produtosSubject.next(all);
+            this.saveToCache(all);
+          }
+        });
       }
     });
   }

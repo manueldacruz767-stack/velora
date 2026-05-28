@@ -68,6 +68,10 @@ export class RegisterComponent {
     return senha === confirm ? null : { naoCoincidem: true };
   }
 
+  clearError(): void {
+    this.error.set(null);
+  }
+
   toggleSenha(): void {
     this.showSenha.set(!this.showSenha());
   }
@@ -97,7 +101,16 @@ export class RegisterComponent {
         }, 1000);
       },
       error: (err) => {
-        this.error.set(err.error?.error || 'Erro ao registar. Tente novamente.');
+        const msg = err.message || '';
+        if (msg.includes('Email já registado') || msg.includes('já registado')) {
+          this.error.set('Este email já está registado');
+        } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('HttpErrorResponse')) {
+          this.error.set('Sem ligação ao servidor. Verifique o XAMPP.');
+        } else if (msg.includes('obrigatórios') || msg.includes('obrigatorio')) {
+          this.error.set('Preencha todos os campos obrigatórios');
+        } else {
+          this.error.set('Erro no servidor. Tente novamente.');
+        }
         this.loading.set(false);
       }
     });

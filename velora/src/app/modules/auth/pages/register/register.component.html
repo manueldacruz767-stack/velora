@@ -24,7 +24,7 @@
         <div class="rf-row">
           <div class="rf-group">
             <label for="nome">{{ 'auth.nome' | translate }}</label>
-            <input id="nome" type="text" formControlName="nome" [placeholder]="'auth.nome_placeholder' | translate" [class.has-error]="form.get('nome')?.invalid && form.get('nome')?.touched" />
+            <input id="nome" type="text" formControlName="nome" (input)="clearError()" [placeholder]="'auth.nome_placeholder' | translate" [class.has-error]="form.get('nome')?.invalid && form.get('nome')?.touched" />
             @if (form.get('nome')?.invalid && form.get('nome')?.touched) {
               <span class="rf-error">{{ 'auth.nome_min' | translate }}</span>
             }
@@ -34,7 +34,7 @@
         <div class="rf-row">
           <div class="rf-group">
             <label for="email">{{ 'auth.email' | translate }}</label>
-            <input id="email" type="email" formControlName="email" placeholder="seu@email.com" [class.has-error]="form.get('email')?.invalid && form.get('email')?.touched" (input)="form.get('email')?.markAsPending()" />
+            <input id="email" type="email" formControlName="email" placeholder="seu@email.com" (input)="clearError(); form.get('email')?.markAsPending()" [class.has-error]="form.get('email')?.invalid && form.get('email')?.touched" />
             @if (form.get('email')?.value && form.get('email')?.valid) {
               <span class="rf-role-badge" [class.badge-admin]="detectedRole().role === 'admin'" [class.badge-seller]="detectedRole().role === 'seller'" [class.badge-buyer]="detectedRole().role === 'buyer'">
                 {{ detectedRole().label }}

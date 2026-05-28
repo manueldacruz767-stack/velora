@@ -15,4 +15,6 @@ export interface Product {
     stock?: number;
     brand?: string;
     discountPercentage?: number;
+    vendedor_id?: number;
+    origem?: string;
 }

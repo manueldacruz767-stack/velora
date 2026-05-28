@@ -1,6 +1,6 @@
 <div class="product-card" [class.added]="added()" [class.compact]="compact()">
   <a [routerLink]="['/produto', product().id]" class="product-image-wrap">
-    <img [src]="product().images?.[0] || product().thumbnail || product().image" [alt]="product().title" class="product-image" loading="lazy"/>
+    <img [src]="product().thumbnail || product().image || product().images?.[0]" [alt]="product().title" class="product-image" loading="lazy"/>
     <div class="product-overlay">
       <span>{{ 'product.ver_detalhes' | translate }}</span>
     </div>

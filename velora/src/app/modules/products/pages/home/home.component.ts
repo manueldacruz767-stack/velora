@@ -36,26 +36,26 @@ export class HomeComponent implements OnInit, OnDestroy {
   categoryLabels: Record<string, string> = {
     smartphones: 'Smartphones',
     laptops: 'Computadores',
+    tablets: 'Tablets',
+    'mobile-accessories': 'Acessórios Mobile',
     fragrances: 'Perfumes',
-    'home-decoration': 'Decoração',
-    'mens-shirts': 'Moda Masculina',
-    'womens-dresses': 'Moda Feminina',
-    beauty: 'Beleza',
-    'skin-care': 'Cuidado de Pele',
     skincare: 'Cuidado de Pele',
-    groceries: 'Alimentação',
-    furniture: 'Móveis',
-    'mobile-accessories': 'Acessórios',
-    'mens-watches': 'Relógios',
-    'womens-watches': 'Relógios',
-    'mens-shoes': 'Calçado',
-    'womens-shoes': 'Calçado',
-    'womens-bags': 'Bolsas',
-    sunglasses: 'Óculos',
+    beauty: 'Beleza',
+    'mens-shirts': 'Camisas',
+    'womens-dresses': 'Vestidos',
+    'mens-shoes': 'Calçado Masculino',
+    'womens-shoes': 'Calçado Feminino',
+    'womens-bags': 'Malas',
+    'mens-watches': 'Relógios Masculinos',
+    'womens-watches': 'Relógios Femininos',
+    sunglasses: 'Óculos de Sol',
     jewellery: 'Jóias',
-    'womens-jewellery': 'Jóias',
-    tops: 'Tops',
-    automotive: 'Automotivo',
+    'home-decoration': 'Decoração',
+    furniture: 'Móveis',
+    'kitchen-accessories': 'Cozinha',
+    groceries: 'Alimentação',
+    'sports-accessories': 'Desporto',
+    vehicle: 'Automóvel',
     motorcycle: 'Motociclismo',
   };
 
@@ -88,28 +88,33 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   private updateCategories(allProducts: Product[]): void {
-    const cats = [
-      { key: 'smartphones', label: 'Eletrónica', cats: ['smartphones', 'laptops'] },
-      { key: 'moda', label: 'Moda', cats: ['womens-dresses', 'mens-shirts'] },
-      { key: 'home-decoration', label: 'Casa', cats: ['home-decoration'] },
-      { key: 'fragrances', label: 'Beleza', cats: ['fragrances', 'skincare'] },
+    const allCats = [
+      'smartphones', 'laptops', 'tablets', 'mobile-accessories',
+      'fragrances', 'skincare', 'beauty',
+      'mens-shirts', 'womens-dresses', 'mens-shoes', 'womens-shoes', 'womens-bags',
+      'mens-watches', 'womens-watches', 'sunglasses', 'jewellery',
+      'home-decoration', 'furniture', 'kitchen-accessories', 'groceries',
+      'sports-accessories', 'vehicle', 'motorcycle'
     ];
 
-    const data = cats.map(c => {
-      const catProducts = allProducts.filter(p => c.cats.includes(p.category));
-      const totalCount = catProducts.length;
-      const img = catProducts[0]?.thumbnail || '';
-      return { category: c.key, count: totalCount, image: img, label: c.label };
-    });
+    const data = allCats.map(cat => {
+      const catProducts = allProducts.filter(p => p.category === cat);
+      return {
+        category: cat,
+        count: catProducts.length,
+        image: catProducts[0]?.thumbnail || '',
+        label: this.categoryLabels[cat] || cat
+      };
+    }).filter(c => c.count > 0);
     this.categoryData.set(data);
 
-    const uniqueCats = [...new Set(allProducts.map(p => p.category))];
-    const carousels = uniqueCats
+    const availableCats = [...new Set(allProducts.map(p => p.category))];
+    const carousels = availableCats
       .map(cat => ({ category: cat, products: allProducts.filter(p => p.category === cat).slice(0, 8) }))
-      .filter(c => c.products.length > 0);
+      .filter(cat => cat.products.length > 0);
     this.categoryCarousels.set(carousels);
-    carousels.forEach(c => {
-      this.carouselIndices[c.category] = 0;
+    carousels.forEach(cat => {
+      this.carouselIndices[cat.category] = 0;
     });
     this.startCategoryCarousels(carousels);
   }

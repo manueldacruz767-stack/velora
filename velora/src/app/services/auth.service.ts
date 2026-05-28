@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { User } from '../interfaces/user';
 
@@ -36,24 +36,24 @@ export class AuthService {
 
   login(email: string, senha: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, {
-      email, senha
+      email: email.trim(), senha
     }).pipe(
       tap(res => this.setSession(res)),
-      catchError((err) => {
-        const msg = err.error?.error || 'Credenciais inválidas';
-        throw new Error(msg);
+      catchError((err: HttpErrorResponse) => {
+        const msg = err.error?.error || err.statusText || 'Credenciais inválidas';
+        return throwError(() => new Error(msg));
       })
     );
   }
 
   register(nome: string, email: string, senha: string, tipo?: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, {
-      nome, email, senha, tipo: tipo || 'client'
+      nome: nome.trim(), email: email.trim(), senha, tipo: tipo || 'client'
     }).pipe(
       tap(res => this.setSession(res)),
-      catchError((err) => {
-        const msg = err.error?.error || 'Erro ao registar';
-        throw new Error(msg);
+      catchError((err: HttpErrorResponse) => {
+        const msg = err.error?.error || err.statusText || 'Erro ao registar';
+        return throwError(() => new Error(msg));
       })
     );
   }

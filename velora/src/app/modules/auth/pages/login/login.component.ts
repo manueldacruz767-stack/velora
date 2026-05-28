@@ -3,11 +3,12 @@ import { RouterLink, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../../services/auth.service';
+import { TranslatePipe } from '../../../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, CommonModule],
+  imports: [RouterLink, ReactiveFormsModule, CommonModule, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -32,6 +33,10 @@ export class LoginComponent {
     this.showPassword.set(!this.showPassword());
   }
 
+  clearError(): void {
+    this.error.set(null);
+  }
+
   onSubmit(): void {
     if (this.form.invalid) return;
     this.loading.set(true);
@@ -49,7 +54,14 @@ export class LoginComponent {
         }
       },
       error: (err) => {
-        this.error.set(err.error?.error || 'Erro ao entrar. Tente novamente.');
+        const msg = err.message || '';
+        if (msg.includes('Credenciais') || msg.includes('401')) {
+          this.error.set('Email ou senha incorrectos');
+        } else if (msg.includes('Failed to fetch') || msg.includes('NetworkError') || msg.includes('HttpErrorResponse')) {
+          this.error.set('Sem ligação ao servidor. Verifique o XAMPP.');
+        } else {
+          this.error.set('Erro no servidor. Tente novamente.');
+        }
         this.loading.set(false);
       }
     });

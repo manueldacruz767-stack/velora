@@ -13,6 +13,7 @@ class AuthService {
         $nome = trim($data['nome'] ?? '');
         $email = trim($data['email'] ?? '');
         $senha = $data['senha'] ?? '';
+        $tipo = $data['tipo'] ?? 'client';
 
         if (empty($nome) || empty($email) || empty($senha)) {
             throw new RuntimeException('Todos os campos são obrigatórios', 400);
@@ -31,10 +32,20 @@ class AuthService {
         }
 
         $hash = password_hash($senha, PASSWORD_ARGON2ID);
-        $userId = $this->userModel->create($nome, $email, $hash);
+
+        $precisaAprovacao = in_array($tipo, ['admin', 'vendedor'], true);
+        $status = $precisaAprovacao ? 'pendente' : 'ativo';
+
+        $userId = $this->userModel->create($nome, $email, $hash, $tipo, $status);
+
+        if ($precisaAprovacao) {
+            return ['status_registo' => 'pendente'];
+        }
+
         $token = AuthMiddleware::generateToken($userId);
 
         return [
+            'status_registo' => 'ativo',
             'user' => $this->userModel->findById($userId),
             'token' => $token,
         ];
@@ -52,6 +63,10 @@ class AuthService {
 
         if (!$user || !password_verify($senha, $user['senha'])) {
             throw new RuntimeException('Credenciais inválidas', 401);
+        }
+
+        if (($user['status'] ?? 'ativo') !== 'ativo') {
+            throw new RuntimeException('A sua conta ainda não foi aprovada. Aguarde a aprovação de um administrador.', 403);
         }
 
         $token = AuthMiddleware::generateToken($user['id']);

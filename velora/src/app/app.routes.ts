@@ -10,6 +10,7 @@ export const routes: Routes = [
   { path: 'colecao', loadComponent: () => import('./modules/products/pages/products/products.component').then(m => m.ProductsComponent) },
   { path: 'carrinho', loadComponent: () => import('./modules/cart/pages/cart/cart.component').then(m => m.CartComponent), canActivate: [AuthGuard] },
   { path: 'checkout', loadComponent: () => import('./modules/cart/pages/checkout/checkout.component').then(m => m.CheckoutComponent), canActivate: [AuthGuard] },
+  { path: 'checkout/success/:id', loadComponent: () => import('./modules/cart/pages/checkout-success/checkout-success.component').then(m => m.CheckoutSuccessComponent), canActivate: [AuthGuard] },
   { path: 'pedidos', loadComponent: () => import('./modules/orders/pages/orders/orders.component').then(m => m.OrdersComponent), canActivate: [AuthGuard] },
   { path: 'login', loadComponent: () => import('./modules/auth/pages/login/login.component').then(m => m.LoginComponent) },
   { path: 'sobre', loadComponent: () => import('./modules/info/pages/sobre/sobre.component').then(m => m.SobreComponent) },

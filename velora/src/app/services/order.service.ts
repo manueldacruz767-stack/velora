@@ -14,7 +14,7 @@ export interface Order {
   id: number;
   user_id: number;
   total: number;
-  status: 'pendente' | 'confirmado' | 'entregue' | 'cancelado';
+  status: 'pendente' | 'pago' | 'processando' | 'enviado' | 'entregue' | 'cancelado';
   created_at: string;
   items: OrderItem[];
 }

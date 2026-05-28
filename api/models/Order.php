@@ -39,6 +39,23 @@ class Order {
         return (int) $this->db->lastInsertId();
     }
 
+    public function addItemWithOrigin(
+        int $orderId,
+        ?int $productId,
+        string $productNome,
+        int $quantidade,
+        float $preco,
+        string $origem = 'local',
+        ?int $vendedorId = null
+    ): int {
+        $stmt = $this->db->prepare('
+            INSERT INTO order_items (order_id, product_id, product_nome, quantidade, preco, origem, vendedor_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ');
+        $stmt->execute([$orderId, $productId, $productNome, $quantidade, $preco, $origem, $vendedorId]);
+        return (int) $this->db->lastInsertId();
+    }
+
     public function getItemsByOrderId(int $orderId): array {
         $stmt = $this->db->prepare('SELECT * FROM order_items WHERE order_id = ?');
         $stmt->execute([$orderId]);
