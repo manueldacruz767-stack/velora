@@ -9,9 +9,13 @@ class Product {
 
     public function getAll(int $limit = 20, int $offset = 0): array {
         $stmt = $this->db->prepare('
-            SELECT p.*, u.nome AS vendedor_nome
+            SELECT p.*, u.nome AS vendedor_nome,
+                ROUND(AVG(a.rating), 1) AS avg_rating,
+                COUNT(a.id) AS total_reviews
             FROM products p
             LEFT JOIN users u ON p.vendedor_id = u.id
+            LEFT JOIN avaliacoes a ON a.product_id = p.id
+            GROUP BY p.id
             ORDER BY p.created_at DESC
             LIMIT ? OFFSET ?
         ');
@@ -20,9 +24,12 @@ class Product {
     }
 
     public function findAll(?string $categoria = null, ?string $search = null): array {
-        $sql = 'SELECT p.*, u.nome AS vendedor_nome
+        $sql = 'SELECT p.*, u.nome AS vendedor_nome,
+                    ROUND(AVG(a.rating), 1) AS avg_rating,
+                    COUNT(a.id) AS total_reviews
                 FROM products p
                 LEFT JOIN users u ON p.vendedor_id = u.id
+                LEFT JOIN avaliacoes a ON a.product_id = p.id
                 WHERE 1=1';
         $params = [];
 
@@ -37,7 +44,7 @@ class Product {
             $params[] = "%$search%";
         }
 
-        $sql .= ' ORDER BY p.created_at DESC';
+        $sql .= ' GROUP BY p.id ORDER BY p.created_at DESC';
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
@@ -46,9 +53,12 @@ class Product {
 
     public function findById(int $id): ?array {
         $stmt = $this->db->prepare('
-            SELECT p.*, u.nome AS vendedor_nome
+            SELECT p.*, u.nome AS vendedor_nome,
+                ROUND(AVG(a.rating), 1) AS avg_rating,
+                COUNT(a.id) AS total_reviews
             FROM products p
             LEFT JOIN users u ON p.vendedor_id = u.id
+            LEFT JOIN avaliacoes a ON a.product_id = p.id
             WHERE p.id = ?
         ');
         $stmt->execute([$id]);

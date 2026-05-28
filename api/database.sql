@@ -83,7 +83,20 @@ CREATE TABLE order_items (
     FOREIGN KEY (vendedor_id) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
--- Migração para BD existente
+CREATE TABLE avaliacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    user_id INT NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comentario TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_avaliacao (product_id, user_id)
+) ENGINE=InnoDB;
+
+-- Migração para BD existente (ajuste para MySQL que rejeita BETWEEN em CHECK)
+-- CREATE TABLE avaliacoes (id INT AUTO_INCREMENT PRIMARY KEY, product_id INT NOT NULL, user_id INT NOT NULL, rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5), comentario TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, UNIQUE KEY unique_avaliacao (product_id, user_id)) ENGINE=InnoDB;
 -- ALTER TABLE products ADD COLUMN stock INT NOT NULL DEFAULT 0 AFTER preco;
 -- CREATE TABLE wallet (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT NOT NULL UNIQUE, saldo DECIMAL(10,2) NOT NULL DEFAULT 0.00, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);
 -- RENAME TABLE cart TO cart_old;

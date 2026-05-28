@@ -360,6 +360,46 @@ export const en: Record<string, any> = {
     "vehicle": "Vehicle",
     "motorcycle": "Motorcycle"
   },
+  "seller": {
+    "painel": "Seller Panel",
+    "carteira": "Wallet",
+    "meus_produtos": "My Products",
+    "saldo_disponivel": "Available Balance",
+    "saldo_bloqueado": "Blocked Balance",
+    "bloqueado_hint": "* Blocked balance is credited after delivery confirmation.",
+    "nenhum_produto": "No products found.",
+    "produto": "Product",
+    "categoria": "Category",
+    "preco": "Price",
+    "stock": "Stock",
+    "imagem": "Image",
+    "stock_actualizado": "Stock updated successfully",
+    "erro_stock": "Error updating stock",
+    "imagem_actualizada": "Image updated successfully",
+    "erro_imagem": "Error uploading image"
+  },
+  "reviews": {
+    "titulo": "Reviews",
+    "media": "Average rating",
+    "total": "review(s)",
+    "deixe_avaliacao": "Leave your review",
+    "classificacao": "Rating",
+    "comentario_placeholder": "Write your comment...",
+    "enviar": "Submit Review",
+    "enviando": "Submitting...",
+    "sucesso": "Review submitted successfully!",
+    "erro": "Error submitting review",
+    "sessao_necessaria": "to review this product.",
+    "vazia": "No reviews yet. Be the first to review!",
+    "inicie_sessao": "Sign in"
+  },
+  "admin_metrics": {
+    "dashboard": "Admin Dashboard",
+    "faturamento_total": "Total Revenue",
+    "pedidos_pendentes": "Pending Orders",
+    "vendedores": "Sellers",
+    "avaliacoes_mes": "Reviews (30 days)"
+  },
   "testimonials": {
     "title": "What Our Clients Say",
     "1": "Since I started shopping at VELORA, my shopping experience has completely changed. Impeccable quality!",

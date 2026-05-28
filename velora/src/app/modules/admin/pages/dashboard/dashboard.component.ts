@@ -7,6 +7,7 @@ import { ProdutoService } from '../../../../services/produto.service';
 import { OrderService, Order } from '../../../../services/order.service';
 import { AuthService } from '../../../../services/auth.service';
 import { Product } from '../../../../interfaces/product';
+import { AdminMetricsService, AdminMetrics } from '../../../../services/admin-metrics.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -44,22 +45,42 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   role = signal<'admin' | 'seller' | 'buyer' | null>(null);
 
+  backendMetrics = signal<AdminMetrics | null>(null);
+  loadingMetrics = signal(true);
+
   private sub?: Subscription;
 
   constructor(
     private produtoService: ProdutoService,
     private orderService: OrderService,
     private authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private adminMetricsService: AdminMetricsService
   ) {}
 
   ngOnInit(): void {
     this.role.set(this.authService.role());
 
+    this.adminMetricsService.getMetrics().subscribe({
+      next: (res) => {
+        this.backendMetrics.set(res.data);
+        this.totalProducts.set(res.data.total_produtos);
+        this.totalOrders.set(res.data.total_pedidos);
+        this.totalUsers.set(res.data.total_users);
+        this.totalRevenue.set(res.data.faturamento_total);
+        this.lowStockCount.set(0);
+        this.loadingMetrics.set(false);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadingMetrics.set(false);
+      }
+    });
+
     this.sub = this.produtoService.getProdutos().subscribe({
       next: (data) => {
         this.products.set(data);
-        this.totalProducts.set(data.length);
+        if (!this.backendMetrics()) this.totalProducts.set(data.length);
         this.lowStockCount.set(data.filter(p => (p.stock ?? 0) < 10).length);
         this.loading.set(false);
       }
@@ -67,8 +88,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.orderService.getOrders().subscribe((orders: any[]) => {
       this.orders.set(orders as Order[]);
-      this.totalOrders.set(orders.length);
-      this.totalRevenue.set(orders.reduce((sum: number, o: any) => sum + (o.totalKz || o.total * 850), 0));
+      if (!this.backendMetrics()) {
+        this.totalOrders.set(orders.length);
+        this.totalRevenue.set(orders.reduce((sum: number, o: any) => sum + (o.totalKz || o.total * 850), 0));
+      }
     });
 
     this.loadUsers();

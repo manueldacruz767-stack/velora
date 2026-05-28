@@ -117,6 +117,28 @@ try {
         $response = (new RastreioController($db))->show((int) $m[1]);
     }
 
+    // Review routes
+    elseif (preg_match('#^/avaliacoes/(\d+)$#', $route, $m) && $method === 'GET') {
+        $response = (new AvaliacaoController($db))->index((int) $m[1]);
+    }
+    elseif (preg_match('#^/avaliacoes/(\d+)$#', $route, $m) && $method === 'POST') {
+        $response = (new AvaliacaoController($db))->store((int) $m[1]);
+    }
+
+    // Seller routes
+    elseif ($route === '/seller/wallet' && $method === 'GET') {
+        $response = (new SellerController($db))->wallet();
+    }
+    elseif ($route === '/seller/products' && $method === 'GET') {
+        $response = (new SellerController($db))->products();
+    }
+    elseif (preg_match('#^/seller/products/(\d+)/stock$#', $route, $m) && $method === 'PUT') {
+        $response = (new SellerController($db))->updateStock((int) $m[1]);
+    }
+    elseif (preg_match('#^/seller/products/(\d+)/image$#', $route, $m) && $method === 'POST') {
+        $response = (new SellerController($db))->uploadImage((int) $m[1]);
+    }
+
     // Admin routes
     elseif ($route === '/admin/users' && $method === 'GET') {
         $response = (new AdminController($db))->allUsers();
@@ -129,6 +151,9 @@ try {
     }
     elseif (preg_match('#^/admin/users/(\d+)/rejeitar$#', $route, $m) && $method === 'POST') {
         $response = (new AdminController($db))->rejectUser((int) $m[1]);
+    }
+    elseif ($route === '/admin/metrics' && $method === 'GET') {
+        $response = (new AdminController($db))->metrics();
     }
 
     // Payment routes - ProxyPay

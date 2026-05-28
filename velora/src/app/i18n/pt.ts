@@ -360,6 +360,46 @@ export const pt: Record<string, any> = {
     "vehicle": "Automóvel",
     "motorcycle": "Motociclismo"
   },
+  "seller": {
+    "painel": "Painel do Vendedor",
+    "carteira": "Carteira",
+    "meus_produtos": "Meus Produtos",
+    "saldo_disponivel": "Saldo Disponível",
+    "saldo_bloqueado": "Saldo Bloqueado",
+    "bloqueado_hint": "* Saldo bloqueado é creditado após confirmação de entrega.",
+    "nenhum_produto": "Nenhum produto seu encontrado.",
+    "produto": "Produto",
+    "categoria": "Categoria",
+    "preco": "Preço",
+    "stock": "Stock",
+    "imagem": "Imagem",
+    "stock_actualizado": "Stock actualizado com sucesso",
+    "erro_stock": "Erro ao actualizar stock",
+    "imagem_actualizada": "Imagem actualizada com sucesso",
+    "erro_imagem": "Erro ao enviar imagem"
+  },
+  "reviews": {
+    "titulo": "Avaliações",
+    "media": "Classificação média",
+    "total": "avaliação(ões)",
+    "deixe_avaliacao": "Deixe a sua avaliação",
+    "classificacao": "Classificação",
+    "comentario_placeholder": "Escreva o seu comentário...",
+    "enviar": "Enviar Avaliação",
+    "enviando": "A enviar...",
+    "sucesso": "Avaliação enviada com sucesso!",
+    "erro": "Erro ao enviar avaliação",
+    "sessao_necessaria": "para avaliar este produto.",
+    "vazia": "Nenhuma avaliação ainda. Seja o primeiro a avaliar!",
+    "inicie_sessao": "Inicie sessão"
+  },
+  "admin_metrics": {
+    "dashboard": "Dashboard da Administração",
+    "faturamento_total": "Faturamento Total",
+    "pedidos_pendentes": "Pedidos Pendentes",
+    "vendedores": "Vendedores",
+    "avaliacoes_mes": "Avaliações (30 dias)"
+  },
   "testimonials": {
     "title": "O Que Dizem os Nossos Clientes",
     "1": "Desde que comecei a comprar na VELORA, a minha experiência de compra mudou completamente. Qualidade impecável!",

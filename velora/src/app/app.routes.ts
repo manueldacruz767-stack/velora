@@ -29,14 +29,9 @@ export const routes: Routes = [
     ]
   },
   {
-    path: 'seller',
+    path: 'vendedor',
     canActivate: [SellerGuard],
-    loadComponent: () => import('./modules/admin/admin.component').then(m => m.AdminComponent),
-    children: [
-      { path: '', redirectTo: 'painel', pathMatch: 'full' },
-      { path: 'painel', loadComponent: () => import('./modules/admin/pages/dashboard/dashboard.component').then(m => m.DashboardComponent) },
-      { path: 'produtos', loadComponent: () => import('./modules/admin/pages/products/products.component').then(m => m.AdminProductsComponent) }
-    ]
+    loadComponent: () => import('./modules/seller/pages/panel/panel.component').then(m => m.SellerPanelComponent)
   },
   { path: '**', redirectTo: '' }
 ];

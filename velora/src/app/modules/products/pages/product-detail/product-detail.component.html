@@ -121,6 +121,89 @@
           </section>
         }
 
+        @if (product()?.vendedor_id) {
+          <section class="comments-section">
+            <h2 class="comments-title">Avaliações ({{ avaliacaoTotal() }})</h2>
+
+            @if (avaliacaoTotal() > 0) {
+              <div class="rating-summary">
+                <div class="rating-average">
+                  <span class="rating-number">{{ avaliacaoMedia() }}</span>
+                  <div class="rating-stars">
+                    @for (star of getAvaliacaoStars(avaliacaoMedia()); track $index) {
+                      <svg width="18" height="18" viewBox="0 0 24 24" [class.star-filled]="star.filled" [class.star-empty]="!star.filled" fill="currentColor">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                      </svg>
+                    }
+                  </div>
+                  <span class="rating-total">{{ avaliacaoTotal() }} avaliação(ões)</span>
+                </div>
+              </div>
+            }
+
+            @if (avaliacaoMsg()) {
+              <div class="avaliacao-msg">{{ avaliacaoMsg() }}</div>
+            }
+
+            <div class="comment-form">
+              <h3>Deixe a sua avaliação</h3>
+              @if (authService.isLoggedIn()) {
+                <div class="star-rating-input">
+                  <span class="rating-label">Classificação</span>
+                  <div class="stars">
+                    @for (star of [1,2,3,4,5]; track star) {
+                      <button class="star-btn" [class.active]="star <= newAvaliacaoRating()" (click)="setAvaliacaoRating(star)" type="button">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </button>
+                    }
+                  </div>
+                </div>
+                <textarea
+                  class="comment-textarea"
+                  placeholder="Escreva o seu comentário..."
+                  [(ngModel)]="newAvaliacaoText"
+                  rows="3"
+                ></textarea>
+                <button class="btn-submit-comment" (click)="submitAvaliacao(product()!.id)" [disabled]="enviandoAvaliacao() || !newAvaliacaoText().trim()">
+                  {{ enviandoAvaliacao() ? 'A enviar...' : 'Enviar Avaliação' }}
+                </button>
+              } @else {
+                <p class="login-to-comment">
+                  <a routerLink="/login">Inicie sessão</a> para avaliar este produto.
+                </p>
+              }
+            </div>
+
+            @if (avaliacoes().length === 0) {
+              <p class="no-comments">Nenhuma avaliação ainda. Seja o primeiro a avaliar!</p>
+            } @else {
+              <div class="comments-list">
+                @for (av of avaliacoes(); track av.id) {
+                  <div class="comment-card">
+                    <div class="comment-header">
+                      <div class="comment-avatar">{{ av.user_nome.charAt(0).toUpperCase() }}</div>
+                      <div class="comment-meta">
+                        <strong class="comment-author">{{ av.user_nome }}</strong>
+                        <span class="comment-date">{{ av.created_at | date:'dd/MM/yyyy' }}</span>
+                      </div>
+                      <div class="comment-stars">
+                        @for (star of getAvaliacaoStars(av.rating); track $index) {
+                          <svg width="14" height="14" viewBox="0 0 24 24" [class.star-filled]="star.filled" [class.star-empty]="!star.filled" fill="currentColor">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                          </svg>
+                        }
+                      </div>
+                    </div>
+                    <p class="comment-text">{{ av.comentario }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+
         <section class="comments-section">
           <h2 class="comments-title">{{ 'product.comentarios' | translate }} ({{ comments().length }})</h2>
 

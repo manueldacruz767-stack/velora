@@ -17,4 +17,13 @@ export interface Product {
     discountPercentage?: number;
     vendedor_id?: number;
     origem?: string;
+
+    titulo?: string;
+    preco?: number;
+    descricao?: string;
+    categoria?: string;
+    imagem_url?: string;
+    vendedor_nome?: string;
+    avg_rating?: number;
+    total_reviews?: number;
 }

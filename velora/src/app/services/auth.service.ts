@@ -70,7 +70,7 @@ export class AuthService {
     const base = window.location.origin + '/velora';
     switch (role) {
       case 'admin': window.location.href = `${base}/admin`; break;
-      case 'seller': window.location.href = `${base}/seller/painel`; break;
+      case 'seller': window.location.href = `${base}/vendedor`; break;
       default: window.location.href = `${base}/`;
     }
   }
